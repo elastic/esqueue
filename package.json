@@ -1,0 +1,22 @@
+{
+  "name": "project-name",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npm run build && mocha --compilers js:babel-core/register",
+    "build": "babel src --out-dir lib",
+    "prepublish": "npm run test"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "babel-cli": "~6.7.5",
+    "babel-core": "~6.7.6",
+    "babel-plugin-add-module-exports": "~0.1.2",
+    "babel-preset-es2015": "~6.6.0",
+    "expect.js": "~0.3.1",
+    "mocha": "~2.4.5",
+    "sinon": "~1.17.3"
+  }
+}
