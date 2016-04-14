@@ -1,0 +1,14 @@
+---
+extends: '@elastic/kibana'
+
+plugins:
+  - react
+
+ecmaFeatures:
+  jsx: true
+
+rules:
+  no-shadow: 2
+  no-unused-vars: [2, {args: 'after-used', argsIgnorePattern: '^_'}]
+  react/jsx-uses-react: 2
+  react/jsx-uses-vars: 2
