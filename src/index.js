@@ -1,24 +1,26 @@
 import events from 'events';
-import validateSchema from './helpers/validate_schema';
+import createClient from './helpers/create_client';
 
 export default class Elastique extends events.EventEmitter {
   constructor(options = {}) {
+    if (!options.index) throw new Error('Must specify an index to write to');
     super();
 
     this.ready = true;
 
-    // initalize the module
-    Promise.all([
-      validateSchema(options)
-    ])
-    .then(([ settings ]) => {
-      this.settings = settings;
-    })
-    .catch((err) => {
-      this.ready = false;
-      this.emit('error', err);
-      throw err;
+    this.settings = {};
+    Object.keys(options, (key) => {
+      if (key !== 'client') this.settings[key] = options[key];
     });
+
+    this.client = createClient(options.client);
+  }
+
+  add(type, payload, opts = {}) {
+    const options = Object.assign({
+      timeout: this.settings.timeout
+    }, opts);
+
   }
 }
 

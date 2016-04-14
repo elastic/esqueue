@@ -1,28 +1,29 @@
-import Elastique from '../lib/index'
+import Elastique from '../lib/index';
 import expect from 'expect.js';
 
 describe('Elastique class', function () {
   describe('Option validation', function () {
-    it('should emit error without an index', function (done) {
-      const queue = new Elastique();
-
-      queue.on('error', (err) => {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/index/);
-        done();
-      });
+    it('should throw without an index', function () {
+      const init = () => new Elastique();
+      expect(init).to.throwException(/must.+specify.+index/i);
     });
 
-    it('should emit error with an invalid URL', function (done) {
-      const queue = new Elastique({
+    it('should throw with an invalid host', function () {
+      const init = () => new Elastique({
         index: 'elastique',
-        url: 'nope://nope'
+        client: { host: 'nope://nope' }
       });
-      queue.on('error', (err) => {
-        expect(err).to.be.an(Error);
-        expect(err.message).to.match(/url/);
-        done();
+
+      expect(init).to.throwException(/invalid.+protocol/i);
+    });
+
+    it('should throw with invalid hosts', function () {
+      const init = () => new Elastique({
+        index: 'elastique',
+        client: { hosts: [{ host: 'localhost', protocol: 'nope' }] }
       });
+
+      expect(init).to.throwException(/invalid.+protocol/i);
     });
   });
 });

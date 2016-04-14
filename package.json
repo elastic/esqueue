@@ -28,7 +28,6 @@
     "sinon": "~1.17.3"
   },
   "dependencies": {
-    "elasticsearch": "~11.0.1",
-    "joi": "~8.0.5"
+    "elasticsearch": "~11.0.1"
   }
 }
