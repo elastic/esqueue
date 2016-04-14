@@ -1,10 +1,28 @@
-import User from '../lib/index'
+import Elastique from '../lib/index'
 import expect from 'expect.js';
 
-describe('User class', function () {
-  it('should return the name', function () {
-    var user = new User('test', 'user');
+describe('Elastique class', function () {
+  describe('Option validation', function () {
+    it('should emit error without an index', function (done) {
+      const queue = new Elastique();
 
-    expect(user.getName()).to.equal('test user');
+      queue.on('error', (err) => {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.match(/index/);
+        done();
+      });
+    });
+
+    it('should emit error with an invalid URL', function (done) {
+      const queue = new Elastique({
+        index: 'elastique',
+        url: 'nope://nope'
+      });
+      queue.on('error', (err) => {
+        expect(err).to.be.an(Error);
+        expect(err.message).to.match(/url/);
+        done();
+      });
+    });
   });
 });
