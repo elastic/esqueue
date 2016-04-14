@@ -1,5 +1,5 @@
 import events from 'events';
-import validateSchema from './lib/validate_schema';
+import validateSchema from './helpers/validate_schema';
 
 export default class Elastique extends events.EventEmitter {
   constructor(options = {}) {
