@@ -1,5 +1,6 @@
 import events from 'events';
 import createClient from './helpers/create_client';
+import { omit } from 'lodash';
 
 export default class Elastique extends events.EventEmitter {
   constructor(options = {}) {
@@ -7,12 +8,10 @@ export default class Elastique extends events.EventEmitter {
     super();
 
     this.ready = true;
-
-    this.settings = {};
-    Object.keys(options, (key) => {
-      if (key !== 'client') this.settings[key] = options[key];
-    });
-
+    this.settings = Object.assign({
+      interval: '1w',
+      timeout: 10000,
+    }, omit(options, [ 'client' ]));
     this.client = createClient(options.client);
   }
 

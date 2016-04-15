@@ -28,6 +28,7 @@
     "sinon": "~1.17.3"
   },
   "dependencies": {
-    "elasticsearch": "~11.0.1"
+    "elasticsearch": "~11.0.1",
+    "lodash": "~4.11.1"
   }
 }
