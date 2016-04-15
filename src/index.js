@@ -3,12 +3,13 @@ import createClient from './helpers/create_client';
 import { omit } from 'lodash';
 
 export default class Elastique extends events.EventEmitter {
-  constructor(options = {}) {
-    if (!options.index) throw new Error('Must specify an index to write to');
+  constructor(index, options = {}) {
+    if (!index) throw new Error('Must specify an index to write to');
 
     super();
 
     this.ready = true;
+    this.index = index;
     this.settings = Object.assign({
       interval: '1w',
       timeout: 10000,

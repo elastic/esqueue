@@ -9,8 +9,7 @@ describe('Elastique class', function () {
     });
 
     it('should throw with an invalid host', function () {
-      const init = () => new Elastique({
-        index: 'elastique',
+      const init = () => new Elastique('elastique', {
         client: { host: 'nope://nope' }
       });
 
@@ -18,8 +17,7 @@ describe('Elastique class', function () {
     });
 
     it('should throw with invalid hosts', function () {
-      const init = () => new Elastique({
-        index: 'elastique',
+      const init = () => new Elastique('elastique', {
         client: { hosts: [{ host: 'localhost', protocol: 'nope' }] }
       });
 
