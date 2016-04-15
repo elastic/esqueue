@@ -1,5 +1,6 @@
 import events from 'events';
 import createClient from './helpers/create_client';
+import Job from './job.js';
 import { omit } from 'lodash';
 
 export default class Elastique extends events.EventEmitter {
@@ -9,6 +10,7 @@ export default class Elastique extends events.EventEmitter {
     super();
 
     this.ready = true;
+    this.jobs = [];
     this.index = index;
     this.settings = Object.assign({
       interval: '1w',
@@ -22,6 +24,8 @@ export default class Elastique extends events.EventEmitter {
       timeout: this.settings.timeout
     }, opts);
 
+    var job = new Job(this, type, payload, options);
+    this.jobs.push(job.id);
+    return job;
   }
 }
-
