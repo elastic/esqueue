@@ -1,11 +1,8 @@
 import expect from 'expect.js';
 import proxyquire from 'proxyquire';
+import * as elasticsearchMock from '../../fixtures/elasticsearch';
 
-const elasticsearchMock = {
-  Client: function Client() {}
-};
-
-const createClient = proxyquire.noPreserveCache()('../../lib/helpers/create_client', {
+const createClient = proxyquire.noPreserveCache()('../../../lib/helpers/create_client', {
   elasticsearch: elasticsearchMock
 });
 

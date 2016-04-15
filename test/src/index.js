@@ -1,4 +1,4 @@
-import Elastique from '../lib/index';
+import Elastique from '../../lib/index';
 import expect from 'expect.js';
 
 describe('Elastique class', function () {
@@ -24,4 +24,9 @@ describe('Elastique class', function () {
       expect(init).to.throwException(/invalid.+protocol/i);
     });
   });
+
+  describe('Job Creation', function () {
+
+  });
+
 });
