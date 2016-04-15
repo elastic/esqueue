@@ -5,6 +5,7 @@ import { omit } from 'lodash';
 export default class Elastique extends events.EventEmitter {
   constructor(options = {}) {
     if (!options.index) throw new Error('Must specify an index to write to');
+
     super();
 
     this.ready = true;
