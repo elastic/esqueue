@@ -1,3 +1,4 @@
+import events from 'events';
 import expect from 'expect.js';
 import sinon from 'sinon';
 import Job from '../../lib/job';
@@ -12,7 +13,12 @@ describe('Jobs', function () {
     };
   });
 
-  describe('invlaid construction', function () {
+  it('should be an event emitter', function () {
+    const job = new Job(mockQueue, 'test', {});
+    expect(job).to.be.an(events.EventEmitter);
+  });
+
+  describe('invalid construction', function () {
     it('should throw with a missing type', function () {
       const init = () => new Job(mockQueue);
       expect(init).to.throwException(/type.+string/i);

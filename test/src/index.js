@@ -1,7 +1,13 @@
-import Elastique from '../../lib/index';
+import events from 'events';
 import expect from 'expect.js';
+import Elastique from '../../lib/index';
 
 describe('Elastique class', function () {
+  it('should be an event emitter', function () {
+    const queue = new Elastique('elastique');
+    expect(queue).to.be.an(events.EventEmitter);
+  });
+
   describe('Option validation', function () {
     it('should throw without an index', function () {
       const init = () => new Elastique();
