@@ -4,7 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run build && mocha --compilers js:babel-core/register test/src/**",
+    "test": "npm run build && npm run mocha",
+    "mocha": "mocha --compilers js:babel-core/register test/src/**",
     "build": "babel src --out-dir lib",
     "prepublish": "npm run test"
   },
