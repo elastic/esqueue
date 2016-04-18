@@ -1,6 +1,7 @@
 import events from 'events';
 import createClient from './helpers/create_client';
 import Job from './job.js';
+import Worker from './worker.js';
 import { omit } from 'lodash';
 
 export default class Elastique extends events.EventEmitter {
@@ -23,5 +24,10 @@ export default class Elastique extends events.EventEmitter {
 
     const job = new Job(this, type, payload, options);
     return job;
+  }
+
+  registerWorker(type, workerFn) {
+    const worker = new Worker(this, type, workerFn);
+    return worker;
   }
 }
