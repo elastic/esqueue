@@ -44,7 +44,7 @@ describe('Jobs', function () {
       type = 'type1';
       payload = { id: '123' };
       options = { timeout: 1234 };
-      sinon.stub(mockQueue.client, 'index');
+      sinon.spy(mockQueue.client, 'index');
     });
 
     it('should index the payload', function () {
