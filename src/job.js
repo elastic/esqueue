@@ -8,12 +8,24 @@ export default class Job extends events.EventEmitter {
 
     super();
 
-    queue.client.index({
-      index: queue.index,
-      type: type,
+    this.queue = queue;
+    this.type = type;
+    this.payload = payload;
+    this.timeout = options.timeout || 10000;
+
+    this.ready = this.queue.client.index({
+      index: this.queue.index,
+      type: this.type,
       body: Object.assign({}, options, {
         payload: payload
       })
+    })
+    .then((doc) => {
+      this.document = {
+        id: doc._id,
+        type: doc._type,
+        version: doc._version,
+      };
     });
   }
 }

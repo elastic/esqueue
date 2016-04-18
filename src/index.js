@@ -13,7 +13,7 @@ export default class Elastique extends events.EventEmitter {
       interval: '1w',
       timeout: 10000,
     }, omit(options, [ 'client' ]));
-    this.client = createClient(options.client);
+    this.client = createClient(options.client || {});
   }
 
   add(type, payload, opts = {}) {
@@ -21,7 +21,7 @@ export default class Elastique extends events.EventEmitter {
       timeout: this.settings.timeout
     }, opts);
 
-    var job = new Job(this, type, payload, options);
+    const job = new Job(this, type, payload, options);
     return job;
   }
 }
