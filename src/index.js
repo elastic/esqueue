@@ -8,9 +8,6 @@ export default class Elastique extends events.EventEmitter {
     if (!index) throw new Error('Must specify an index to write to');
 
     super();
-
-    this.ready = true;
-    this.jobs = [];
     this.index = index;
     this.settings = Object.assign({
       interval: '1w',
@@ -25,7 +22,6 @@ export default class Elastique extends events.EventEmitter {
     }, opts);
 
     var job = new Job(this, type, payload, options);
-    this.jobs.push(job.id);
     return job;
   }
 }
