@@ -39,10 +39,9 @@ describe('Job Class', function () {
   });
 
   describe('construction', function () {
-    const PENDING = 0;
     let type;
     let payload;
-    let options;
+    let timeout;
 
     function validateDoc(spy) {
       expect(spy.callCount).to.be(1);
@@ -53,7 +52,7 @@ describe('Job Class', function () {
     beforeEach(function () {
       type = 'type1';
       payload = { id: '123' };
-      options = { timeout: 1234, test: 'options' };
+      timeout = 4567;
       sinon.spy(mockQueue.client, 'index');
     });
 
@@ -66,26 +65,14 @@ describe('Job Class', function () {
       expect(newDoc.body).to.have.property('payload', payload);
     });
 
-    it('should index any optional params', function () {
-      new Job(mockQueue, type, payload, options);
-      const newDoc = validateDoc(mockQueue.client.index);
-      expect(newDoc.body).to.have.property('options');
-    });
-
     it('should index timeout value from options', function () {
-      new Job(mockQueue, type, payload, options);
+      new Job(mockQueue, type, payload, timeout);
       const newDoc = validateDoc(mockQueue.client.index);
-      expect(newDoc.body).to.have.property('timeout', options.timeout);
-    });
-
-    it('should not use timeout as an option', function () {
-      new Job(mockQueue, type, payload, options);
-      const newDoc = validateDoc(mockQueue.client.index);
-      expect(newDoc.body.options).to.eql(_.omit(options, [ 'timeout' ]));
+      expect(newDoc.body).to.have.property('timeout', timeout);
     });
 
     it('should set event times', function () {
-      new Job(mockQueue, type, payload, options);
+      new Job(mockQueue, type, payload, timeout);
       const newDoc = validateDoc(mockQueue.client.index);
       expect(newDoc.body).to.have.property('created');
       expect(newDoc.body).to.have.property('started');
@@ -93,13 +80,13 @@ describe('Job Class', function () {
     });
 
     it('should set attempt count', function () {
-      new Job(mockQueue, type, payload, options);
+      new Job(mockQueue, type, payload, timeout);
       const newDoc = validateDoc(mockQueue.client.index);
       expect(newDoc.body).to.have.property('attempts');
     });
 
     it('should set status as pending', function () {
-      new Job(mockQueue, type, payload, options);
+      new Job(mockQueue, type, payload, timeout);
       const newDoc = validateDoc(mockQueue.client.index);
       expect(newDoc.body).to.have.property('status', JOB_STATUS_PENDING);
     });
