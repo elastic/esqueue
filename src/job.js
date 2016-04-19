@@ -1,5 +1,7 @@
 import events from 'events';
-import { isPlainObject } from 'lodash';
+import { isPlainObject, omit } from 'lodash';
+
+const PENDING = 0;
 
 export default class Job extends events.EventEmitter {
   constructor(queue, type, payload, options = {}) {
@@ -12,13 +14,22 @@ export default class Job extends events.EventEmitter {
     this.type = type;
     this.payload = payload;
     this.timeout = options.timeout || 10000;
+    this.options = omit(options, [ 'timeout' ]);
+    this.status = PENDING;
 
     this.ready = this.queue.client.index({
       index: this.queue.index,
       type: this.type,
-      body: Object.assign({}, options, {
-        payload: payload
-      })
+      body: {
+        payload: this.payload,
+        timeout: this.timeout,
+        options: this.options,
+        created: new Date(),
+        started: null,
+        completed: null,
+        attempts: 0,
+        status: PENDING,
+      }
     })
     .then((doc) => {
       this.document = {

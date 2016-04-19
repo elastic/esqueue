@@ -1,11 +1,13 @@
 import events from 'events';
 import expect from 'expect.js';
 import sinon from 'sinon';
+import _ from 'lodash';
 import Job from '../../lib/job';
 import * as elasticsearchMock from '../fixtures/elasticsearch';
 
-describe('Jobs', function () {
+describe('Job Class', function () {
   let mockQueue;
+
   beforeEach(function () {
     mockQueue = {
       index: 'test',
@@ -36,55 +38,69 @@ describe('Jobs', function () {
   });
 
   describe('construction', function () {
+    const PENDING = 0;
     let type;
     let payload;
     let options;
 
+    function validateDoc(spy) {
+      expect(spy.callCount).to.be(1);
+      const spyCall = spy.getCall(0);
+      return spyCall.args[0];
+    }
+
     beforeEach(function () {
       type = 'type1';
       payload = { id: '123' };
-      options = { timeout: 1234 };
+      options = { timeout: 1234, test: 'options' };
       sinon.spy(mockQueue.client, 'index');
     });
 
     it('should index the payload', function () {
       new Job(mockQueue, type, payload);
-
-      sinon.assert.calledOnce(mockQueue.client.index);
-      sinon.assert.calledWith(mockQueue.client.index, {
-        index: mockQueue.index,
-        type: type,
-        body: {
-          payload: payload
-        }
-      });
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc).to.have.property('index', mockQueue.index);
+      expect(newDoc).to.have.property('type', type);
+      expect(newDoc).to.have.property('body');
+      expect(newDoc.body).to.have.property('payload', payload);
     });
 
     it('should index any optional params', function () {
       new Job(mockQueue, type, payload, options);
-
-      sinon.assert.calledOnce(mockQueue.client.index);
-      sinon.assert.calledWith(mockQueue.client.index, {
-        index: mockQueue.index,
-        type: type,
-        body: Object.assign(options, {
-          payload: payload
-        })
-      });
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body).to.have.property('options');
     });
 
-    it('should not allow options to clobber payload', function () {
-      options = { payload: 1234 };
+    it('should index timeout value from options', function () {
       new Job(mockQueue, type, payload, options);
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body).to.have.property('timeout', options.timeout);
+    });
 
-      sinon.assert.calledOnce(mockQueue.client.index);
-      sinon.assert.calledWith(mockQueue.client.index, {
-        index: mockQueue.index,
-        type: type,
-        body: {
-          payload: payload
-        }
-      });
+    it('should not use timeout as an option', function () {
+      new Job(mockQueue, type, payload, options);
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body.options).to.eql(_.omit(options, [ 'timeout' ]));
+    });
+
+    it('should set event times', function () {
+      new Job(mockQueue, type, payload, options);
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body).to.have.property('created');
+      expect(newDoc.body).to.have.property('started');
+      expect(newDoc.body).to.have.property('completed');
+    });
+
+    it('should set attempt count', function () {
+      new Job(mockQueue, type, payload, options);
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body).to.have.property('attempts');
+    });
+
+    it('should set status as pending', function () {
+      new Job(mockQueue, type, payload, options);
+      const newDoc = validateDoc(mockQueue.client.index);
+      expect(newDoc.body).to.have.property('status', PENDING);
     });
   });
 });
