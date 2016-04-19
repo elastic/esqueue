@@ -4,6 +4,7 @@ import sinon from 'sinon';
 import _ from 'lodash';
 import Job from '../../lib/job';
 import * as elasticsearchMock from '../fixtures/elasticsearch';
+import { JOB_STATUS_PENDING } from '../../lib/helpers/constants';
 
 describe('Job Class', function () {
   let mockQueue;
@@ -100,7 +101,7 @@ describe('Job Class', function () {
     it('should set status as pending', function () {
       new Job(mockQueue, type, payload, options);
       const newDoc = validateDoc(mockQueue.client.index);
-      expect(newDoc.body).to.have.property('status', PENDING);
+      expect(newDoc.body).to.have.property('status', JOB_STATUS_PENDING);
     });
   });
 });

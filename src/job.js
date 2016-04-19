@@ -1,7 +1,6 @@
 import events from 'events';
 import { isPlainObject, omit } from 'lodash';
-
-const PENDING = 0;
+import { JOB_STATUS_PENDING } from './helpers/constants';
 
 export default class Job extends events.EventEmitter {
   constructor(queue, type, payload, options = {}) {
@@ -15,7 +14,7 @@ export default class Job extends events.EventEmitter {
     this.payload = payload;
     this.timeout = options.timeout || 10000;
     this.options = omit(options, [ 'timeout' ]);
-    this.status = PENDING;
+    this.status = JOB_STATUS_PENDING;
 
     this.ready = this.queue.client.index({
       index: this.queue.index,
@@ -28,7 +27,7 @@ export default class Job extends events.EventEmitter {
         started: null,
         completed: null,
         attempts: 0,
-        status: PENDING,
+        status: this.status,
       }
     })
     .then((doc) => {
