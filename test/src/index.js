@@ -1,10 +1,17 @@
 import events from 'events';
 import expect from 'expect.js';
+import * as elasticsearchMock from '../fixtures/elasticsearch';
 import Elastique from '../../lib/index';
 
 describe('Elastique class', function () {
+  let client;
+
+  beforeEach(function () {
+    client = new elasticsearchMock.Client();
+  });
+
   it('should be an event emitter', function () {
-    const queue = new Elastique('elastique');
+    const queue = new Elastique('elastique', { client });
     expect(queue).to.be.an(events.EventEmitter);
   });
 
@@ -30,9 +37,4 @@ describe('Elastique class', function () {
       expect(init).to.throwException(/invalid.+protocol/i);
     });
   });
-
-  describe('Job Creation', function () {
-
-  });
-
 });
