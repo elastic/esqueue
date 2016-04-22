@@ -1,14 +1,9 @@
 import expect from 'expect.js';
 import sinon from 'sinon';
 import moment from 'moment';
-import proxyquire from 'proxyquire';
+import indexTimestamp from '../../../lib/helpers/index_timestamp';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
-
-const module = proxyquire.noPreserveCache()('../../../lib/helpers/index_timestamp', {
-  moment: () => moment(anchor)
-});
-const indexTimestamp = module.default;
 
 describe('Index interval', function () {
   describe('indexTimestamp construction', function () {
