@@ -1,6 +1,13 @@
 import { uniqueId } from 'lodash';
 
-function Client() {}
+function Client() {
+  this.indices = {
+    create: () => Promise.resolve({ acknowledged: true })
+  };
+
+  this.transport = {};
+}
+
 Client.prototype.index = function (params) {
   var shardCount = 2;
   return Promise.resolve({
@@ -11,6 +18,10 @@ Client.prototype.index = function (params) {
     _shards: { total: shardCount, successful: shardCount, failed: 0 },
     created: true
   });
+};
+
+Client.prototype.ping = function () {
+  return Promise.resolve();
 };
 
 export default {
