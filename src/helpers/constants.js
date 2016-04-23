@@ -1,7 +1,8 @@
 const constants = {
-  JOB_STATUS_PENDING: 0,
-  JOB_STATUS_PROCESSING: 1,
-  JOB_STATUS_COMPLETED: 2,
+  JOB_STATUS_PENDING: 'pending',
+  JOB_STATUS_PROCESSING: 'processing',
+  JOB_STATUS_COMPLETED: 'completed',
+  JOB_STATUS_FAILED: 'failed',
 };
 
 export default constants;
