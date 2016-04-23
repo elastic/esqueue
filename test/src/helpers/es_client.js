@@ -1,6 +1,6 @@
 import expect from 'expect.js';
 import proxyquire from 'proxyquire';
-import * as elasticsearchMock from '../../fixtures/elasticsearch';
+import elasticsearchMock from '../../fixtures/elasticsearch';
 
 const module = proxyquire.noPreserveCache()('../../../lib/helpers/es_client', {
   elasticsearch: elasticsearchMock

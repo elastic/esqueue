@@ -1,7 +1,7 @@
 import events from 'events';
 import expect from 'expect.js';
 import sinon from 'sinon';
-import * as elasticsearchMock from '../fixtures/elasticsearch';
+import elasticsearchMock from '../fixtures/elasticsearch';
 import Elastique from '../../lib/index';
 
 describe('Elastique class', function () {

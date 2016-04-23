@@ -3,7 +3,7 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import _ from 'lodash';
 import Job from '../../lib/job';
-import * as elasticsearchMock from '../fixtures/elasticsearch';
+import elasticsearchMock from '../fixtures/elasticsearch';
 import { JOB_STATUS_PENDING } from '../../lib/helpers/constants';
 
 describe('Job Class', function () {
