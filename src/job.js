@@ -3,20 +3,21 @@ import { isPlainObject, omit } from 'lodash';
 import { JOB_STATUS_PENDING } from './helpers/constants';
 
 export default class Job extends events.EventEmitter {
-  constructor(queue, type, payload, timeout = 10000) {
+  constructor(client, index, type, payload, timeout = 10000) {
     if (typeof type !== 'string') throw new Error('Type must be a string');
     if (!isPlainObject(payload)) throw new Error('Payload must be a plain object');
 
     super();
 
-    this.queue = queue;
+    this.client = client;
+    this.index = index;
     this.type = type;
     this.payload = payload;
     this.timeout = timeout;
     this.status = JOB_STATUS_PENDING;
 
-    this.ready = this.queue.client.index({
-      index: this.queue.index,
+    this.ready = this.client.index({
+      index: this.index,
       type: this.type,
       body: {
         payload: this.payload,

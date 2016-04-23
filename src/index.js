@@ -1,7 +1,6 @@
 import events from 'events';
 import createClient from './helpers/es_client';
 import indexTimestamp from './helpers/index_timestamp';
-import createIndex from './helpers/create_index';
 import Job from './job.js';
 import Worker from './worker.js';
 import { omit } from 'lodash';
@@ -22,20 +21,23 @@ export default class Elastique extends events.EventEmitter {
   }
 
   _initTasks() {
-    const timestamp = indexTimestamp(this.settings.interval);
+
     var initTasks = [
       this.client.ping({ timeout: 3000 }),
-      createIndex(this.client, `${this.index}-${timestamp}`),
     ];
+
     return Promise.all(initTasks);
   }
 
   add(type, payload, opts = {}) {
+    const timestamp = indexTimestamp(this.settings.interval);
+    const index = `${this.index}-${timestamp}`;
+
     const options = Object.assign({
       timeout: this.settings.timeout
     }, opts);
 
-    const job = new Job(this, type, payload, options);
+    const job = new Job(this.client, index, type, payload, options);
     return job;
   }
 
