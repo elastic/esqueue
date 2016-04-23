@@ -1,5 +1,6 @@
 import events from 'events';
 import expect from 'expect.js';
+import sinon from 'sinon';
 import * as elasticsearchMock from '../fixtures/elasticsearch';
 import Elastique from '../../lib/index';
 
@@ -37,4 +38,13 @@ describe('Elastique class', function () {
       expect(init).to.throwException(/invalid.+protocol/i);
     });
   });
+
+  describe('Queue construction', function () {
+    it('should ping the ES server', function () {
+      const pingSpy = sinon.spy(client, 'ping');
+      new Elastique('elastique', { client });
+      sinon.assert.calledOnce(pingSpy);
+    });
+  });
+
 });
