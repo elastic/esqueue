@@ -2,7 +2,8 @@ import { uniqueId } from 'lodash';
 
 function Client() {
   this.indices = {
-    create: () => Promise.resolve({ acknowledged: true })
+    create: () => Promise.resolve({ acknowledged: true }),
+    exists: () => Promise.resolve(false),
   };
 
   this.transport = {};
