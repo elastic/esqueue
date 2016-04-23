@@ -1,6 +1,7 @@
 import events from 'events';
-import { isPlainObject, omit } from 'lodash';
+import { isPlainObject } from 'lodash';
 import { JOB_STATUS_PENDING } from './helpers/constants';
+import createIndex from './helpers/create_index';
 
 export default class Job extends events.EventEmitter {
   constructor(client, index, type, payload, timeout = 10000) {
@@ -16,25 +17,33 @@ export default class Job extends events.EventEmitter {
     this.timeout = timeout;
     this.status = JOB_STATUS_PENDING;
 
-    this.ready = this.client.index({
-      index: this.index,
-      type: this.type,
-      body: {
-        payload: this.payload,
-        timeout: this.timeout,
-        created: new Date(),
-        started: null,
-        completed: null,
-        attempts: 0,
-        status: this.status,
-      }
+    this.ready = createIndex(client, index)
+    .then((...args) => {
+      this.client.index({
+        index: this.index,
+        type: this.type,
+        body: {
+          payload: this.payload,
+          timeout: this.timeout,
+          created: new Date(),
+          started: null,
+          completed: null,
+          attempts: 0,
+          status: this.status,
+        }
+      })
+      .then((doc) => {
+        this.document = {
+          id: doc._id,
+          type: doc._type,
+          version: doc._version,
+        };
+      });
     })
-    .then((doc) => {
-      this.document = {
-        id: doc._id,
-        type: doc._type,
-        version: doc._version,
-      };
+    .catch((err) => {
+      this.emit('error', err);
+      throw err;
     });
   }
+
 }
