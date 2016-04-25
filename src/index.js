@@ -1,9 +1,12 @@
 import events from 'events';
 import createClient from './helpers/es_client';
 import indexTimestamp from './helpers/index_timestamp';
+import logger from './helpers/logger';
 import Job from './job.js';
 import Worker from './worker.js';
 import { omit } from 'lodash';
+
+const debug = logger('queue');
 
 export default class Elastique extends events.EventEmitter {
   constructor(index, options = {}) {
@@ -21,12 +24,14 @@ export default class Elastique extends events.EventEmitter {
   }
 
   _initTasks() {
-
     var initTasks = [
       this.client.ping({ timeout: 3000 }),
     ];
 
-    return Promise.all(initTasks);
+    return Promise.all(initTasks).catch((err) => {
+      debug('Initialization failed', err);
+      throw err;
+    });
   }
 
   add(type, payload, opts = {}) {
