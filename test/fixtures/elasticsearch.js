@@ -15,7 +15,7 @@ Client.prototype.index = function (params) {
   return Promise.resolve({
     _index: params.index || 'index',
     _type: params.type || 'type',
-    _id: uniqueId('testDoc'),
+    _id: params.id || uniqueId('testDoc'),
     _version: 1,
     _shards: { total: shardCount, successful: shardCount, failed: 0 },
     created: true
