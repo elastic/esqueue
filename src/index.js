@@ -34,7 +34,7 @@ export default class Elastique extends events.EventEmitter {
     });
   }
 
-  add(type, payload, opts = {}) {
+  addJob(type, payload, opts = {}) {
     const timestamp = indexTimestamp(this.settings.interval);
     const index = `${this.index}-${timestamp}`;
 
