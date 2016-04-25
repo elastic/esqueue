@@ -1,6 +1,7 @@
 import events from 'events';
 import expect from 'expect.js';
 import sinon from 'sinon';
+import { noop } from 'lodash';
 import elasticsearchMock from '../fixtures/elasticsearch';
 import Elastique from '../../lib/index';
 
@@ -44,6 +45,19 @@ describe('Elastique class', function () {
       const pingSpy = sinon.spy(client, 'ping');
       new Elastique('elastique', { client });
       sinon.assert.calledOnce(pingSpy);
+    });
+  });
+
+  describe('Registering workers', function () {
+    it('should keep track of workers', function () {
+      const queue = new Elastique('elastique', { client });
+      expect(queue.workers).to.eql([]);
+      expect(queue.workers).to.have.length(0);
+
+      queue.registerWorker('test', noop);
+      queue.registerWorker('test', noop);
+      queue.registerWorker('test2', noop);
+      expect(queue.workers).to.have.length(3);
     });
   });
 

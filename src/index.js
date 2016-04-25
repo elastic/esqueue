@@ -19,6 +19,7 @@ export default class Elastique extends events.EventEmitter {
       timeout: 10000,
     }, omit(options, [ 'client' ]));
     this.client = createClient(options.client || {});
+    this.workers = [];
 
     this._initTasks().catch((err) => this.emit('error', err));
   }
@@ -42,12 +43,16 @@ export default class Elastique extends events.EventEmitter {
       timeout: this.settings.timeout
     }, opts);
 
-    const job = new Job(this.client, index, type, payload, options);
-    return job;
+    return new Job(this.client, index, type, payload, options);
   }
 
-  registerWorker(type, workerFn) {
-    const worker = new Worker(this, type, workerFn);
+  registerWorker(type, workerFn, opts) {
+    const worker = new Worker(this, type, workerFn, opts);
+    this.workers.push(worker);
     return worker;
+  }
+
+  destroy() {
+    this.workers.forEach((worker) => worker.destroy());
   }
 }
