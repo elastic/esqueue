@@ -1,7 +1,7 @@
 import events from 'events';
 import { isPlainObject } from 'lodash';
 import logger from './helpers/logger';
-import { JOB_STATUS_PENDING } from './helpers/constants';
+import { jobStatuses } from './helpers/constants';
 import createIndex from './helpers/create_index';
 
 const debug = logger('job');
@@ -33,7 +33,7 @@ export default class Job extends events.EventEmitter {
           created_at: new Date(),
           attempts: 0,
           max_attempts: this.maxAttempts,
-          status: JOB_STATUS_PENDING,
+          status: jobStatuses.JOB_STATUS_PENDING,
         }
       })
       .then((doc) => {
