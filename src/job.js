@@ -1,6 +1,6 @@
 import events from 'events';
 import { isPlainObject } from 'lodash';
-import { omit, values } from 'lodash';
+import { omit } from 'lodash';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
 import createIndex from './helpers/create_index';
@@ -80,7 +80,7 @@ export default class Job extends events.EventEmitter {
       type: this.type,
       payload: this.payload,
       timeout: this.timeout,
-      maxAttempts: this.maxAttempts,
+      max_attempts: this.maxAttempts,
       priority: this.priority,
     }, omit(this.document, ['version']));
   }
