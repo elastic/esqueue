@@ -1,12 +1,18 @@
 import expect from 'expect.js';
 import { noop } from 'lodash';
 import Worker from '../../lib/worker';
+import elasticsearchMock from '../fixtures/elasticsearch';
+
 
 describe('Worker class', function () {
+  let client;
   let mockQueue;
 
   beforeEach(function () {
-    mockQueue = {};
+    client = new elasticsearchMock.Client();
+    mockQueue = {
+      client: client
+    };
   });
 
   describe('invalid construction', function () {
