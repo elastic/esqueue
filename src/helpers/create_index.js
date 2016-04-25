@@ -8,7 +8,7 @@ var schema = {
   completed_at: { type: 'date' },
   attempts: { type: 'short' },
   max_attempts: { type: 'short' },
-  status: { type: 'string', index: 'not_analyzed' },
+  status: { type: 'keyword' },
   output_content_type: { type: 'string', index: 'not_analyzed' },
   output: { type: 'object', enabled: false }
 };
