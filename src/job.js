@@ -1,5 +1,6 @@
 import events from 'events';
 import { isPlainObject } from 'lodash';
+import { omit, values } from 'lodash';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
 import createIndex from './helpers/create_index';
@@ -50,6 +51,38 @@ export default class Job extends events.EventEmitter {
       this.emit('error', err);
       throw err;
     });
+  }
+
+  get() {
+    return this.ready
+    .then(() => {
+      return this.client.get({
+        index: this.index,
+        type: this.type,
+        id: this.document.id
+      });
+    })
+    .then((doc) => {
+      return Object.assign(doc._source, {
+        index: doc._index,
+        id: doc._id,
+        type: doc._type,
+        version: doc._version,
+      });
+    });
+  }
+
+  toJSON() {
+    if (!this.document) return false;
+
+    return Object.assign({
+      index: this.index,
+      type: this.type,
+      payload: this.payload,
+      timeout: this.timeout,
+      maxAttempts: this.maxAttempts,
+      priority: this.priority,
+    }, omit(this.document, ['version']));
   }
 
 }
