@@ -52,6 +52,10 @@ Client.prototype.get = function (params, source) {
   };
 };
 
+Client.prototype.search = function (params) {
+  return Promise.resolve();
+};
+
 export default {
   Client: Client,
   errors: elasticsearch.errors
