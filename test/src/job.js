@@ -11,6 +11,9 @@ const module = proxyquire.noPreserveCache()('../../lib/job', {
 });
 
 const Job = module;
+const maxPriority = 20;
+const minPriority = -20;
+const defaultPriority = 10;
 
 describe('Job Class', function () {
   let client;
@@ -115,5 +118,30 @@ describe('Job Class', function () {
         sinon.assert.calledOnce(createIndexMock);
       });
     });
+
+    it('should have a default priority of 10', function () {
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('priority', defaultPriority);
+      });
+    });
+
+    it(`should use upper priority of ${maxPriority}`, function () {
+      const job = new Job(client, index, type, payload, { priority: maxPriority * 2 });
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('priority', maxPriority);
+      });
+    });
+
+    it(`should use lower priority of ${minPriority}`, function () {
+      const job = new Job(client, index, type, payload, { priority: minPriority * 2 });
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('priority', minPriority);
+      });
+    });
+
   });
 });
