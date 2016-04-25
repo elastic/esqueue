@@ -19,6 +19,10 @@ describe('Job Class', function () {
   let client;
   let index;
 
+  let type;
+  let payload;
+  let options;
+
   beforeEach(function () {
     createIndexMock.reset();
     index = 'test';
@@ -48,10 +52,6 @@ describe('Job Class', function () {
   });
 
   describe('construction', function () {
-    let type;
-    let payload;
-    let options;
-
     function validateDoc(spy) {
       sinon.assert.callCount(spy, 1);
       const spyCall = spy.getCall(0);
@@ -142,6 +142,33 @@ describe('Job Class', function () {
         expect(newDoc.body).to.have.property('priority', minPriority);
       });
     });
-
   });
+
+  describe('get method', function () {
+    beforeEach(function () {
+      type = 'type2';
+      payload = { id: '123' };
+      options = {
+        timeout: 4567,
+        max_attempts: 9,
+      };
+      sinon.spy(client, 'index');
+    });
+
+    it('should return the job document', function () {
+      const job = new Job(client, index, type, payload);
+      return job.get()
+      .then((doc) => {
+        const jobDoc = job.document; // document should be resolved
+        expect(doc).to.have.property('index', index);
+        expect(doc).to.have.property('type', type);
+        expect(doc).to.have.property('id', jobDoc.id);
+        expect(doc).to.have.property('version', jobDoc.version);
+        expect(doc).to.have.property('payload');
+        expect(doc).to.have.property('priority');
+        expect(doc).to.have.property('timeout');
+      });
+    });
+  });
+
 });
