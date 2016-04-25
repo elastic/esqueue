@@ -47,7 +47,7 @@ describe('Job Class', function () {
   describe('construction', function () {
     let type;
     let payload;
-    let timeout;
+    let options;
 
     function validateDoc(spy) {
       sinon.assert.callCount(spy, 1);
@@ -58,7 +58,10 @@ describe('Job Class', function () {
     beforeEach(function () {
       type = 'type1';
       payload = { id: '123' };
-      timeout = 4567;
+      options = {
+        timeout: 4567,
+        max_attempts: 9,
+      };
       sinon.spy(client, 'index');
     });
 
@@ -74,33 +77,32 @@ describe('Job Class', function () {
     });
 
     it('should index timeout value from options', function () {
-      const job = new Job(client, index, type, payload, timeout);
+      const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('timeout', timeout);
+        expect(newDoc.body).to.have.property('timeout', options.timeout);
       });
     });
 
     it('should set event times', function () {
-      const job = new Job(client, index, type, payload, timeout);
+      const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('created');
-        expect(newDoc.body).to.have.property('started');
-        expect(newDoc.body).to.have.property('completed');
+        expect(newDoc.body).to.have.property('created_at');
       });
     });
 
     it('should set attempt count', function () {
-      const job = new Job(client, index, type, payload, timeout);
+      const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('attempts');
+        expect(newDoc.body).to.have.property('attempts', 0);
+        expect(newDoc.body).to.have.property('max_attempts', options.max_attempts);
       });
     });
 
     it('should set status as pending', function () {
-      const job = new Job(client, index, type, payload, timeout);
+      const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc.body).to.have.property('status', JOB_STATUS_PENDING);
@@ -108,7 +110,7 @@ describe('Job Class', function () {
     });
 
     it('should create the target index', function () {
-      const job = new Job(client, index, type, payload, timeout);
+      const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         sinon.assert.calledOnce(createIndexMock);
       });
