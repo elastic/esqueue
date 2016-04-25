@@ -177,25 +177,21 @@ describe('Job Class', function () {
       };
     });
 
-    it('should return false if no elasticsearch document', function () {
-      const job = new Job(client, index, 'test', {});
-      // same tick, document promise has not resolved
-      expect(job.toJSON()).to.equal(false);
-    });
-
     it('should return the static information about the job', function () {
       const job = new Job(client, index, type, payload, options);
-      // toJSON is sync, but only works once the document has been written
-      return job.ready.then(() => {
-        const doc = job.toJSON();
-        expect(doc).to.have.property('index', index);
-        expect(doc).to.have.property('type', type);
-        expect(doc).to.have.property('timeout', options.timeout);
-        expect(doc).to.have.property('max_attempts', options.max_attempts);
-        expect(doc).to.have.property('priority', options.priority);
-        expect(doc).to.have.property('id');
-        expect(doc).to.not.have.property('version');
-      });
+
+      // toJSON is sync, should work before doc is written to elasticsearch
+      expect(job.document).to.be(undefined);
+
+      const doc = job.toJSON();
+      console.log(doc);
+      expect(doc).to.have.property('index', index);
+      expect(doc).to.have.property('type', type);
+      expect(doc).to.have.property('timeout', options.timeout);
+      expect(doc).to.have.property('max_attempts', options.max_attempts);
+      expect(doc).to.have.property('priority', options.priority);
+      expect(doc).to.have.property('id');
+      expect(doc).to.not.have.property('version');
     });
   });
 

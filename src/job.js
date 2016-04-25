@@ -1,11 +1,12 @@
 import events from 'events';
 import { isPlainObject } from 'lodash';
-import { omit } from 'lodash';
+import Puid from 'puid';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
 import createIndex from './helpers/create_index';
 
 const debug = logger('job');
+const puid = new Puid();
 
 export default class Job extends events.EventEmitter {
   constructor(client, index, type, payload, options = {}) {
@@ -15,6 +16,7 @@ export default class Job extends events.EventEmitter {
     super();
 
     this.client = client;
+    this.id = puid.generate();
     this.index = index;
     this.type = type;
     this.payload = payload;
@@ -27,6 +29,7 @@ export default class Job extends events.EventEmitter {
       return this.client.index({
         index: this.index,
         type: this.type,
+        id: this.id,
         body: {
           payload: this.payload,
           priority: this.priority,
@@ -59,7 +62,7 @@ export default class Job extends events.EventEmitter {
       return this.client.get({
         index: this.index,
         type: this.type,
-        id: this.document.id
+        id: this.id
       });
     })
     .then((doc) => {
@@ -73,16 +76,15 @@ export default class Job extends events.EventEmitter {
   }
 
   toJSON() {
-    if (!this.document) return false;
-
     return Object.assign({
+      id: this.id,
       index: this.index,
       type: this.type,
       payload: this.payload,
       timeout: this.timeout,
       max_attempts: this.maxAttempts,
       priority: this.priority,
-    }, omit(this.document, ['version']));
+    });
   }
 
 }
