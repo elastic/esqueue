@@ -184,7 +184,6 @@ describe('Job Class', function () {
       expect(job.document).to.be(undefined);
 
       const doc = job.toJSON();
-      console.log(doc);
       expect(doc).to.have.property('index', index);
       expect(doc).to.have.property('type', type);
       expect(doc).to.have.property('timeout', options.timeout);
