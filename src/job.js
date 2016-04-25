@@ -18,21 +18,18 @@ export default class Job extends events.EventEmitter {
     this.type = type;
     this.payload = payload;
     this.timeout = timeout;
-    this.status = JOB_STATUS_PENDING;
 
     this.ready = createIndex(client, index)
-    .then((...args) => {
+    .then(() => {
       this.client.index({
         index: this.index,
         type: this.type,
         body: {
           payload: this.payload,
           timeout: this.timeout,
-          created: new Date(),
-          started: null,
-          completed: null,
+          created_at: new Date(),
           attempts: 0,
-          status: this.status,
+          status: JOB_STATUS_PENDING,
         }
       })
       .then((doc) => {

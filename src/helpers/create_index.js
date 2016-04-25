@@ -1,7 +1,7 @@
 var schema = {
   payload: { type: 'object', enabled: false },
   priority: { type: 'short' },
-  process_timeout: { type: 'long' },
+  timeout: { type: 'long' },
   process_expiration: { type: 'date' },
   created_at: { type: 'date' },
   started_at: { type: 'date' },
