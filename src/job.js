@@ -13,27 +13,26 @@ export default class Job extends events.EventEmitter {
 
     super();
 
-    const timeout = options.timeout || 10000;
-    const maxAttempts = options.max_attempts || 3;
-    const priority = Math.max(Math.min(options.priority || 10, 20), -20);
-
     this.client = client;
     this.index = index;
     this.type = type;
     this.payload = payload;
+    this.timeout = options.timeout || 10000;
+    this.maxAttempts = options.max_attempts || 3;
+    this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
 
     this.ready = createIndex(client, index)
     .then(() => {
-      this.client.index({
+      return this.client.index({
         index: this.index,
         type: this.type,
         body: {
           payload: this.payload,
-          priority: priority,
-          timeout: timeout,
+          priority: this.priority,
+          timeout: this.timeout,
           created_at: new Date(),
           attempts: 0,
-          max_attempts: maxAttempts,
+          max_attempts: this.maxAttempts,
           status: JOB_STATUS_PENDING,
         }
       })
