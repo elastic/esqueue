@@ -27,7 +27,34 @@ export default class Job extends events.EventEmitter {
   }
 
   _processJobs() {
-    const query = {};
+    const query = {
+      query: {
+        bool: {
+          must: [{ term: { _type: 'example' } }],
+          should: [
+            { bool: {
+              must: [{ term: { status: 'pending'} }]
+            }},
+            { bool: {
+              must: [
+                { term: { status: 'processing'}}
+              ],
+              filter: {
+                range: {
+                  process_expiration: {
+                    lte: '2016-04-26T23:40:47.820Z'
+                  }
+                }
+              }
+            }}
+          ]
+        }
+      },
+      sort: [
+        { priority: { order: 'asc' }},
+        { created_at: { order: 'asc' }}
+      ]
+    };
 
     return this.client.search({
       body: {
