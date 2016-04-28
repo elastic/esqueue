@@ -1,4 +1,4 @@
-import { uniqueId } from 'lodash';
+import { uniqueId, times, random } from 'lodash';
 import elasticsearch from 'elasticsearch';
 
 function Client() {
@@ -52,8 +52,46 @@ Client.prototype.get = function (params, source) {
   };
 };
 
-Client.prototype.search = function (params) {
-  return Promise.resolve();
+Client.prototype.search = function (params, count = 5, source = {}) {
+  const hits = times(count, () => {
+    return {
+      _index: params.index || 'index',
+      _type: params.type || 'type',
+      _id: uniqueId('documentId'),
+      _version: random(1, 5),
+      _score: null,
+      _source: Object.assign({
+        created_at: new Date().toString(),
+        number: random(0, count, true)
+      }, source)
+    };
+  });
+  return Promise.resolve({
+    took: random(0, 10),
+    timed_out: false,
+    _shards: {
+      total: 5,
+      successful: 5,
+      failed: 0
+    },
+    hits: {
+      total: count,
+      max_score: null,
+      hits: hits
+    }
+  });
+};
+
+Client.prototype.update = function (params) {
+  var shardCount = 2;
+  return Promise.resolve({
+    _index: params.index || 'index',
+    _type: params.type || 'type',
+    _id: params.id || uniqueId('testDoc'),
+    _version: params.version + 1 || 2,
+    _shards: { total: shardCount, successful: shardCount, failed: 0 },
+    created: true
+  });
 };
 
 export default {
