@@ -25,8 +25,8 @@ export default class Job extends events.EventEmitter {
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
-    // this._pollForPendingJobs();
-    this._checker = setInterval(() => this._pollForPendingJobs(), this.checkInterval);
+    this._checker = false;
+    this._startJobPolling();
   }
 
   destroy() {
@@ -109,8 +109,15 @@ export default class Job extends events.EventEmitter {
     return Promise.reject('mock es failure');
   }
 
-  _pollForPendingJobs() {
-    this._getPendingJobs().then((jobs) => this._claimPendingJobs(jobs));
+  _startJobPolling() {
+    this._checker = setInterval(() => {
+      this._getPendingJobs()
+      .then((jobs) => this._claimPendingJobs(jobs));
+    } , this.checkInterval);
+  }
+
+  _stopJobPolling() {
+    clearInterval(this._checker);
   }
 
   _claimPendingJobs(jobs) {
