@@ -88,18 +88,7 @@ export default class Job extends events.EventEmitter {
       body: { doc }
     })
     .catch((err) => {
-      if (err.statusCode === 409) {
-        return this.client.get({
-          index: job._index,
-          type: job._type,
-          id: job._id
-        })
-        .then((jobDoc) => {
-          if (jobDoc._source.status === jobStatuses.JOB_STATUS_FAILED) return false;
-          throw err;
-        });
-      }
-
+      if (err.statusCode === 409) return false;
       throw err;
     });
   }
