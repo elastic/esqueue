@@ -110,8 +110,10 @@ export default class Job extends events.EventEmitter {
   }
 
   _claimPendingJobs(jobs) {
+    this._stopJobPolling();
     let claimed = false;
-    Bluebird.mapSeries(jobs, (job) => {
+
+    return Bluebird.mapSeries(jobs, (job) => {
       if (claimed) return false;
 
       return this._claimJob(job)
@@ -138,7 +140,8 @@ export default class Job extends events.EventEmitter {
       const job = claimedJobs[0];
       this.debug(`Beginning work on ${job._id}`);
       return this._performJob(job);
-    });
+    })
+    .finally(() => this._startJobPolling());
   }
 
   _getPendingJobs() {
