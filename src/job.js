@@ -24,6 +24,8 @@ export default class Job extends events.EventEmitter {
     this.maxAttempts = options.max_attempts || 3;
     this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
 
+    this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
+
     this.ready = createIndex(client, index)
     .then(() => {
       return this.client.index({
@@ -46,11 +48,12 @@ export default class Job extends events.EventEmitter {
           type: doc._type,
           version: doc._version,
         };
-        debug('Job created', this.document);
+        this.debug('Job created');
+        this.emit('created', this.document);
       });
     })
     .catch((err) => {
-      debug('Job creation failed', err);
+      this.debug('Job creation failed', err);
       this.emit('error', err);
       throw err;
     });
