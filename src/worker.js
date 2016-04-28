@@ -21,6 +21,7 @@ export default class Job extends events.EventEmitter {
     this.type = type;
     this.workerFn = workerFn;
     this.checkInterval = opts.interval || 1500;
+    this.checkSize = opts.size || 10;
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
@@ -166,7 +167,7 @@ export default class Job extends events.EventEmitter {
         { priority: { order: 'asc' }},
         { created_at: { order: 'asc' }}
       ],
-      size: 10
+      size: this.checkSize
     };
 
     this.debug('querying for outstanding jobs');
