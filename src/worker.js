@@ -99,9 +99,7 @@ export default class Job extends events.EventEmitter {
   _performJob(job) {
     this.debug(`Starting job ${job._id}`);
 
-    return Bluebird.try(() => {
-      return this.workerFn(job._source.payload);
-    })
+    return Bluebird.fromCallback((cb) => this.workerFn(job._source.payload, cb))
     .then((output) => {
       const unknownMime = false;
       const docOutput = {};
