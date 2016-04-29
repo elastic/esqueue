@@ -10,7 +10,7 @@ function Client() {
   this.transport = {};
 }
 
-Client.prototype.index = function (params) {
+Client.prototype.index = function (params = {}) {
   var shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
@@ -26,7 +26,7 @@ Client.prototype.ping = function () {
   return Promise.resolve();
 };
 
-Client.prototype.get = function (params, source) {
+Client.prototype.get = function (params = {}, source = false) {
   if (params === elasticsearch.errors.NotFound) return elasticsearch.errors.NotFound;
 
   const _source = source || {
@@ -52,7 +52,7 @@ Client.prototype.get = function (params, source) {
   };
 };
 
-Client.prototype.search = function (params, count = 5, source = {}) {
+Client.prototype.search = function (params = {}, count = 5, source = {}) {
   const hits = times(count, () => {
     return {
       _index: params.index || 'index',
@@ -82,7 +82,7 @@ Client.prototype.search = function (params, count = 5, source = {}) {
   });
 };
 
-Client.prototype.update = function (params) {
+Client.prototype.update = function (params = {}) {
   var shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
