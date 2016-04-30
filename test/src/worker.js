@@ -1,7 +1,7 @@
 import expect from 'expect.js';
 import sinon from 'sinon';
 import moment from 'moment';
-import { noop } from 'lodash';
+import { noop, random } from 'lodash';
 import Worker from '../../lib/worker';
 import elasticsearchMock from '../fixtures/elasticsearch';
 import { JOB_STATUS_PROCESSING, JOB_STATUS_FAILED } from '../../lib/helpers/constants';
@@ -219,6 +219,58 @@ describe('Worker class', function () {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
       return worker._failJob(job);
+    });
+  });
+
+  describe('performing a job', function () {
+    let job;
+    let payload;
+    let updateSpy;
+
+    beforeEach(function () {
+      clock.restore();
+      payload = {
+        value: random(0, 100, true)
+      };
+      job = mockQueue.client.get({}, { payload });
+      updateSpy = sinon.spy(mockQueue.client, 'update');
+    });
+
+    it('should call the workerFn with the payload', function (done) {
+      const workerFn = function (jobPayload, cb) {
+        expect(jobPayload).to.eql(payload);
+        cb();
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => done());
+    });
+
+    it('should update the job with the workerFn output', function (done) {
+      const workerFn = function (jobPayload, cb) {
+        expect(jobPayload).to.eql(payload);
+        cb(null, payload);
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => {
+        try {
+          sinon.assert.calledOnce(updateSpy);
+          const query = updateSpy.firstCall.args[0];
+          expect(query).to.have.property('index', job._index);
+          expect(query).to.have.property('type', job._type);
+          expect(query).to.have.property('id', job._id);
+          expect(query).to.have.property('version', job._version);
+          expect(query.body.doc).to.have.property('output');
+          expect(query.body.doc.output).to.have.property('content_type', false);
+          expect(query.body.doc.output).to.have.property('content', payload);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
     });
   });
 
