@@ -26,10 +26,10 @@ Client.prototype.ping = function () {
   return Promise.resolve();
 };
 
-Client.prototype.get = function (params = {}, source = false) {
+Client.prototype.get = function (params = {}, source = {}) {
   if (params === elasticsearch.errors.NotFound) return elasticsearch.errors.NotFound;
 
-  const _source = source || {
+  const _source = Object.assign({
     payload: {
       id: 'sample-job-1',
       now: 'Mon Apr 25 2016 14:13:04 GMT-0700 (MST)'
@@ -40,11 +40,11 @@ Client.prototype.get = function (params = {}, source = false) {
     attempts: 0,
     max_attempts: 3,
     status: 'pending'
-  };
+  }, source);
 
   return {
-    _index: params.index,
-    _type: params.type,
+    _index: params.index || 'index',
+    _type: params.type || 'type',
     _id: params.id || 'AVRPRLnlp7Ur1SZXfT-T',
     _version: params.version || 1,
     found: true,
