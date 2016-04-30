@@ -173,6 +173,12 @@ describe('Worker class', function () {
       const msg = failSpy.firstCall.args[1];
       expect(msg).to.equal(false);
     });
+
+    it('should swallow version mismatch errors', function () {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
+      return worker._claimJob(job);
+    });
   });
 
   describe('failing a job', function () {
@@ -207,6 +213,12 @@ describe('Worker class', function () {
       const doc = updateSpy.firstCall.args[0].body.doc;
       expect(doc).to.have.property('output');
       expect(doc.output).to.have.property('content', msg);
+    });
+
+    it('should swallow version mismatch errors', function () {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
+      return worker._failJob(job);
     });
   });
 
