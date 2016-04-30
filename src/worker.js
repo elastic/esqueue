@@ -41,7 +41,8 @@ export default class Job extends events.EventEmitter {
     const attempts = job._source.attempts + 1;
 
     if (attempts > job._source.max_attempts) {
-      return this._failJob(job, `Max attempts reached (${job._source.max_attempts})`)
+      const msg = (!job._source.output) ? `Max attempts reached (${job._source.max_attempts})` : false;
+      return this._failJob(job, msg)
       .then(() => false);
     }
 
@@ -70,13 +71,13 @@ export default class Job extends events.EventEmitter {
     });
   }
 
-  _failJob(job, msg) {
+  _failJob(job, msg = false) {
     this.debug(`Failing job ${job._id}`);
     const doc = {
       status: jobStatuses.JOB_STATUS_FAILED
     };
 
-    if (!job._source.output) {
+    if (msg) {
       doc.output = {
         content_type: 'text/plain',
         content: msg
@@ -91,7 +92,7 @@ export default class Job extends events.EventEmitter {
       body: { doc }
     })
     .catch((err) => {
-      if (err.statusCode === 409) return false;
+      if (err.statusCode === 409) return true;
       throw err;
     });
   }
