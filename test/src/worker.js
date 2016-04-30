@@ -4,7 +4,7 @@ import moment from 'moment';
 import { noop } from 'lodash';
 import Worker from '../../lib/worker';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import { JOB_STATUS_PROCESSING } from '../../lib/helpers/constants';
+import { JOB_STATUS_PROCESSING, JOB_STATUS_FAILED } from '../../lib/helpers/constants';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
 const defaults = {
@@ -146,6 +146,67 @@ describe('Worker class', function () {
       const doc = updateSpy.firstCall.args[0].body.doc;
       const expiration = anchorMoment.add(defaults.timeout).toISOString();
       expect(doc).to.have.property('process_expiration', expiration);
+    });
+
+    it('should fail job if max_attempts are hit', function () {
+      const failSpy = sinon.spy(worker, '_failJob');
+      job._source.attempts = job._source.max_attempts;
+      worker._claimJob(job);
+      sinon.assert.calledOnce(failSpy);
+    });
+
+    it('should append error message if no existing content', function () {
+      const failSpy = sinon.spy(worker, '_failJob');
+      job._source.attempts = job._source.max_attempts;
+      expect(job._source.output).to.be(undefined);
+      worker._claimJob(job);
+      const msg = failSpy.firstCall.args[1];
+      expect(msg).to.contain('Max attempts reached');
+      expect(msg).to.contain(job._source.max_attempts);
+    });
+
+    it('should not append message if existing output', function () {
+      const failSpy = sinon.spy(worker, '_failJob');
+      job._source.attempts = job._source.max_attempts;
+      job._source.output = 'i have some output';
+      worker._claimJob(job);
+      const msg = failSpy.firstCall.args[1];
+      expect(msg).to.equal(false);
+    });
+  });
+
+  describe('failing a job', function () {
+    let job;
+    let worker;
+    let updateSpy;
+
+    beforeEach(function () {
+      job = mockQueue.client.get();
+      worker = new Worker(mockQueue, 'test', noop);
+      updateSpy = sinon.spy(mockQueue.client, 'update');
+    });
+
+    it('should use version on update', function () {
+      worker._failJob(job);
+      const query = updateSpy.firstCall.args[0];
+      expect(query).to.have.property('index', job._index);
+      expect(query).to.have.property('type', job._type);
+      expect(query).to.have.property('id', job._id);
+      expect(query).to.have.property('version', job._version);
+    });
+
+    it('should set status to failed', function () {
+      worker._failJob(job);
+      const doc = updateSpy.firstCall.args[0].body.doc;
+      expect(doc).to.have.property('status', JOB_STATUS_FAILED);
+    });
+
+    it('should append error message if supplied', function () {
+      const msg = 'test message';
+      worker._failJob(job, msg);
+      const doc = updateSpy.firstCall.args[0].body.doc;
+      expect(doc).to.have.property('output');
+      expect(doc.output).to.have.property('content', msg);
     });
   });
 
