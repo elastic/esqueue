@@ -336,6 +336,30 @@ describe('Worker class', function () {
         }
       });
     });
+
+    it('should set status to failed', function (done) {
+      const startTime = moment().valueOf();
+      const workerFn = function (jobPayload, cb) {
+        expect(jobPayload).to.eql(payload);
+        cb(null, payload);
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => {
+        try {
+          sinon.assert.calledOnce(updateSpy);
+          const doc = updateSpy.firstCall.args[0].body.doc;
+          expect(doc).to.have.property('status', JOB_STATUS_FAILED);
+          expect(doc).to.have.property('completed_at');
+          const completedTimestamp = moment(doc.completed_at).valueOf();
+          expect(completedTimestamp).to.be.greaterThan(startTime);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
   });
 
 });

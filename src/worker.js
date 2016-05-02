@@ -132,7 +132,10 @@ export default class Job extends events.EventEmitter {
         throw err;
       });
     }, (err) => {
+      const completedTime = moment().toISOString();
       const doc = {
+        status: jobStatuses.JOB_STATUS_FAILED,
+        completed_at: completedTime,
         output: {
           content_type: false,
           content: err.toString()
