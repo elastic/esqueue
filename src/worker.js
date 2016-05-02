@@ -131,14 +131,14 @@ export default class Job extends events.EventEmitter {
         if (err.statusCode === 409) return false;
         throw err;
       });
-    }, (err) => {
+    }, (jobErr) => {
       const completedTime = moment().toISOString();
       const doc = {
         status: jobStatuses.JOB_STATUS_FAILED,
         completed_at: completedTime,
         output: {
           content_type: false,
-          content: err.toString()
+          content: jobErr.toString()
         }
       };
 
@@ -150,7 +150,7 @@ export default class Job extends events.EventEmitter {
         body: { doc }
       })
       .catch(() => false)
-      .then(() => { throw err; });
+      .then(() => { throw jobErr; });
     });
   }
 

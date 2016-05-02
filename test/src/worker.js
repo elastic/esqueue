@@ -305,8 +305,8 @@ describe('Worker class', function () {
 
       worker._performJob(job)
       .then(() => done(new Error('should not resolve')))
-      .catch((err) => {
-        expect(err.message).to.equal('test error');
+      .catch((e) => {
+        expect(e.message).to.equal('test error');
         done();
       });
     });
@@ -337,16 +337,16 @@ describe('Worker class', function () {
       });
     });
 
-    it('should set status to failed', function (done) {
+    it('should set completed time and status to failed', function (done) {
       const startTime = moment().valueOf();
       const workerFn = function (jobPayload, cb) {
-        expect(jobPayload).to.eql(payload);
-        cb(null, payload);
+        cb(new Error('test error'));
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
 
       worker._performJob(job)
-      .then(() => {
+      .then(() => done(new Error('should not resolve')))
+      .catch(() => {
         try {
           sinon.assert.calledOnce(updateSpy);
           const doc = updateSpy.firstCall.args[0].body.doc;
@@ -355,8 +355,8 @@ describe('Worker class', function () {
           const completedTimestamp = moment(doc.completed_at).valueOf();
           expect(completedTimestamp).to.be.greaterThan(startTime);
           done();
-        } catch (err) {
-          done(err);
+        } catch (e) {
+          done(e);
         }
       });
     });
