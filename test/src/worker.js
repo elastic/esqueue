@@ -129,7 +129,7 @@ describe('Worker class', function () {
       expect(query).to.have.property('version', job._version);
     });
 
-    it('should increment the attempts', function () {
+    it('should increment the job attempts', function () {
       worker._claimJob(job);
       const doc = updateSpy.firstCall.args[0].body.doc;
       expect(doc).to.have.property('attempts', job._source.attempts + 1);
@@ -141,7 +141,7 @@ describe('Worker class', function () {
       expect(doc).to.have.property('status', JOB_STATUS_PROCESSING);
     });
 
-    it('should set expiration time', function () {
+    it('should set job expiration time', function () {
       worker._claimJob(job);
       const doc = updateSpy.firstCall.args[0].body.doc;
       const expiration = anchorMoment.add(defaults.timeout).toISOString();
@@ -269,6 +269,46 @@ describe('Worker class', function () {
           done();
         } catch (err) {
           done(err);
+        }
+      });
+    });
+
+    it('should reject on job errors', function (done) {
+      const workerFn = function (jobPayload, cb) {
+        cb(new Error('test error'));
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => done(new Error('should not resolve')))
+      .catch((err) => {
+        expect(err.message).to.equal('test error');
+        done();
+      });
+    });
+
+    it('should append erorr output to job', function (done) {
+      const workerFn = function (jobPayload, cb) {
+        cb(new Error('test error'));
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => done(new Error('should not resolve')))
+      .catch((err) => {
+        try {
+          sinon.assert.calledOnce(updateSpy);
+          const query = updateSpy.firstCall.args[0];
+          expect(query).to.have.property('index', job._index);
+          expect(query).to.have.property('type', job._type);
+          expect(query).to.have.property('id', job._id);
+          expect(query).to.have.property('version', job._version);
+          expect(query.body.doc).to.have.property('output');
+          expect(query.body.doc.output).to.have.property('content_type', false);
+          expect(query.body.doc.output).to.have.property('content', err.toString());
+          done();
+        } catch (e) {
+          done(e);
         }
       });
     });
