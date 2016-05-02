@@ -129,7 +129,6 @@ export default class Job extends events.EventEmitter {
         throw err;
       });
     }, (err) => {
-      console.error('err', err);
       const doc = {
         output: {
           content_type: false,
