@@ -4,7 +4,7 @@ import moment from 'moment';
 import { noop, random } from 'lodash';
 import Worker from '../../lib/worker';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import { JOB_STATUS_PROCESSING, JOB_STATUS_FAILED } from '../../lib/helpers/constants';
+import { JOB_STATUS_PROCESSING, JOB_STATUS_COMPLETED, JOB_STATUS_FAILED } from '../../lib/helpers/constants';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
 const defaults = {
@@ -266,6 +266,30 @@ describe('Worker class', function () {
           expect(query.body.doc).to.have.property('output');
           expect(query.body.doc.output).to.have.property('content_type', false);
           expect(query.body.doc.output).to.have.property('content', payload);
+          done();
+        } catch (err) {
+          done(err);
+        }
+      });
+    });
+
+    it('should update the job status and completed time', function (done) {
+      const startTime = moment().valueOf();
+      const workerFn = function (jobPayload, cb) {
+        expect(jobPayload).to.eql(payload);
+        cb(null, payload);
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+
+      worker._performJob(job)
+      .then(() => {
+        try {
+          sinon.assert.calledOnce(updateSpy);
+          const doc = updateSpy.firstCall.args[0].body.doc;
+          expect(doc).to.have.property('status', JOB_STATUS_COMPLETED);
+          expect(doc).to.have.property('completed_at');
+          const completedTimestamp = moment(doc.completed_at).valueOf();
+          expect(completedTimestamp).to.be.greaterThan(startTime);
           done();
         } catch (err) {
           done(err);

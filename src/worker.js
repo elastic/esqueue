@@ -102,8 +102,10 @@ export default class Job extends events.EventEmitter {
 
     return Bluebird.fromCallback((cb) => this.workerFn(job._source.payload, cb))
     .then((output) => {
+      const completedTime = moment().toISOString();
       const unknownMime = false;
       const docOutput = {};
+
       if (typeof output === 'object' && output.content) {
         docOutput.content = output.content;
         docOutput.content_type = output.content_type || unknownMime;
@@ -114,6 +116,7 @@ export default class Job extends events.EventEmitter {
 
       const doc = {
         status: jobStatuses.JOB_STATUS_COMPLETED,
+        completed_at: completedTime,
         output: docOutput
       };
 
