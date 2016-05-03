@@ -28,7 +28,6 @@ export default class Job extends events.EventEmitter {
 
     this.ready = createIndex(client, index)
     .then(() => {
-      this.debug(`Adding job to index ${this.index}`);
       return this.client.index({
         index: this.index,
         type: this.type,
@@ -49,7 +48,7 @@ export default class Job extends events.EventEmitter {
           type: doc._type,
           version: doc._version,
         };
-        this.debug('Job created');
+        this.debug(`Job created in index ${this.index}`);
         this.emit('created', this.document);
       });
     })
