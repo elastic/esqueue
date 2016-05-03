@@ -100,13 +100,14 @@ export default class Job extends events.EventEmitter {
 
   _formatOutput(output) {
     const unknownMime = false;
+    const defaultOutput = null;
     const docOutput = {};
 
     if (typeof output === 'object' && output.content) {
       docOutput.content = output.content;
       docOutput.content_type = output.content_type || unknownMime;
     } else {
-      docOutput.content = output || '';
+      docOutput.content = output || defaultOutput;
       docOutput.content_type = unknownMime;
     }
 
