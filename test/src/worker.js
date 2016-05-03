@@ -11,6 +11,8 @@ const defaults = {
   timeout: 10000,
   interval: 1500,
   size: 10,
+  unknownMime: false,
+  contentBody: null,
 };
 
 describe('Worker class', function () {
@@ -56,13 +58,56 @@ describe('Worker class', function () {
 
   describe('construction', function () {
     it('should have a unique ID', function () {
-      var worker = new Worker(mockQueue, 'test', noop);
+      const worker = new Worker(mockQueue, 'test', noop);
       expect(worker.id).to.be.a('string');
 
-      var worker2 = new Worker(mockQueue, 'test', noop);
+      const worker2 = new Worker(mockQueue, 'test', noop);
       expect(worker2.id).to.be.a('string');
 
       expect(worker.id).to.not.equal(worker2.id);
+    });
+  });
+
+  describe('output formatting', function () {
+    let worker;
+    let f;
+
+    beforeEach(function () {
+      worker = new Worker(mockQueue, 'test', noop);
+      f = (output) => worker._formatOutput(output);
+    });
+
+    it('should handle primitives', function () {
+      const primitives = ['test', true, 1234, { one: 1}, [5, 6, 7, 8]];
+
+      primitives.forEach((val) => {
+        expect(f(val)).to.have.property('content_type', defaults.unknownMime);
+        expect(f(val)).to.have.property('content', val);
+      });
+    });
+
+    it('should accept content object without type', function () {
+      const output = {
+        content: 'test output'
+      };
+
+      expect(f(output)).to.have.property('content_type', defaults.unknownMime);
+      expect(f(output)).to.have.property('content', output.content);
+    });
+
+    it('should accept a content type', function () {
+      const output = {
+        content_type: 'test type',
+        content: 'test output'
+      };
+
+      expect(f(output)).to.have.property('content_type', output.content_type);
+      expect(f(output)).to.have.property('content', output.content);
+    });
+
+    it('should work with no input', function () {
+      expect(f()).to.have.property('content_type', defaults.unknownMime);
+      expect(f()).to.have.property('content', defaults.contentBody);
     });
   });
 
@@ -346,5 +391,12 @@ describe('Worker class', function () {
       });
     });
   });
+
+// describe('job timeouts', function () {
+//   let job;
+//   let payload;
+//   let updateSpy;
+
+// });
 
 });
