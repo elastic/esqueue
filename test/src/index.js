@@ -3,9 +3,9 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import { noop, times } from 'lodash';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import Elastique from '../../lib/index';
+import Esqueue from '../../lib/index';
 
-describe('Elastique class', function () {
+describe('Esqueue class', function () {
   let client;
 
   beforeEach(function () {
@@ -13,18 +13,18 @@ describe('Elastique class', function () {
   });
 
   it('should be an event emitter', function () {
-    const queue = new Elastique('elastique', { client });
+    const queue = new Esqueue('esqueue', { client });
     expect(queue).to.be.an(events.EventEmitter);
   });
 
   describe('Option validation', function () {
     it('should throw without an index', function () {
-      const init = () => new Elastique();
+      const init = () => new Esqueue();
       expect(init).to.throwException(/must.+specify.+index/i);
     });
 
     it('should throw with an invalid host', function () {
-      const init = () => new Elastique('elastique', {
+      const init = () => new Esqueue('esqueue', {
         client: { host: 'nope://nope' }
       });
 
@@ -32,7 +32,7 @@ describe('Elastique class', function () {
     });
 
     it('should throw with invalid hosts', function () {
-      const init = () => new Elastique('elastique', {
+      const init = () => new Esqueue('esqueue', {
         client: { hosts: [{ host: 'localhost', protocol: 'nope' }] }
       });
 
@@ -43,14 +43,14 @@ describe('Elastique class', function () {
   describe('Queue construction', function () {
     it('should ping the ES server', function () {
       const pingSpy = sinon.spy(client, 'ping');
-      new Elastique('elastique', { client });
+      new Esqueue('esqueue', { client });
       sinon.assert.calledOnce(pingSpy);
     });
   });
 
   describe('Registering workers', function () {
     it('should keep track of workers', function () {
-      const queue = new Elastique('elastique', { client });
+      const queue = new Esqueue('esqueue', { client });
       expect(queue.getWorkers()).to.eql([]);
       expect(queue.getWorkers()).to.have.length(0);
 
@@ -63,7 +63,7 @@ describe('Elastique class', function () {
 
   describe('Destroy', function () {
     it('should destroy workers', function () {
-      const queue = new Elastique('elastique', { client });
+      const queue = new Esqueue('esqueue', { client });
       const stubs = times(3, () => { return { destroy: sinon.stub() }; });
       stubs.forEach((stub) => queue._workers.push(stub));
       expect(queue.getWorkers()).to.have.length(3);

@@ -8,7 +8,7 @@ import { omit } from 'lodash';
 
 const debug = logger('queue');
 
-export default class Elastique extends events.EventEmitter {
+export default class Esqueue extends events.EventEmitter {
   constructor(index, options = {}) {
     if (!index) throw new Error('Must specify an index to write to');
 

@@ -1,12 +1,18 @@
-[![Build Status](https://travis-ci.org/w33ble/elastique.svg?branch=master)](https://travis-ci.org/w33ble/elastique) [![codecov](https://codecov.io/gh/w33ble/elastique/branch/master/graph/badge.svg)](https://codecov.io/gh/w33ble/elastique)
+[![Build Status](https://travis-ci.org/w33ble/esqueue.svg?branch=master)](https://travis-ci.org/w33ble/esqueue) [![codecov](https://codecov.io/gh/w33ble/esqueue/branch/master/graph/badge.svg)](https://codecov.io/gh/w33ble/esqueue)
 
-# Elasticsearch-powered job queue
+# esqueue
 
-WIP, working title
+`esqueue` is an Elasticsearch-powered job queue
+
+## Installation
+
+`npm install esqueue`
 
 ## Usage
 
-Still not ready for publishing to npm...
+Simply include the module in your application.
+
+`var Esqueue = require('esqueue');`
 
 ### Creating a queue
 
@@ -16,7 +22,7 @@ The first step is to create a new Queue instance. This is your point of entry, i
 var index = 'my-index';
 var options = {};
 
-var queue = new Elastique(index, options);
+var queue = new Esqueue(index, options);
 ```
 
 The queue instance is an event emitter, so you can listen for `error` events as you would any other event emitter.
