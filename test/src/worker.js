@@ -22,16 +22,10 @@ describe('Worker class', function () {
   let mockQueue;
 
   beforeEach(function () {
-    anchorMoment = moment(anchor);
-    clock = sinon.useFakeTimers(anchorMoment.valueOf());
     client = new elasticsearchMock.Client();
     mockQueue = {
       client: client
     };
-  });
-
-  afterEach(function () {
-    clock.restore();
   });
 
   describe('invalid construction', function () {
@@ -112,6 +106,15 @@ describe('Worker class', function () {
   });
 
   describe('searching for jobs', function () {
+    beforeEach(() => {
+      anchorMoment = moment(anchor);
+      clock = sinon.useFakeTimers(anchorMoment.valueOf());
+    });
+
+    afterEach(() => {
+      clock.restore();
+    });
+
     it('should start polling for jobs after interval', function () {
       const searchSpy = sinon.spy(mockQueue.client, 'search');
       new Worker(mockQueue, 'test', noop);
@@ -154,6 +157,9 @@ describe('Worker class', function () {
     let updateSpy;
 
     beforeEach(function () {
+      anchorMoment = moment(anchor);
+      clock = sinon.useFakeTimers(anchorMoment.valueOf());
+
       params = {
         index: 'myIndex',
         type: 'test',
@@ -163,6 +169,10 @@ describe('Worker class', function () {
       job = mockQueue.client.get(params);
       worker = new Worker(mockQueue, 'test', noop);
       updateSpy = sinon.spy(mockQueue.client, 'update');
+    });
+
+    afterEach(() => {
+      clock.restore();
     });
 
     it('should use version on update', function () {
@@ -232,10 +242,18 @@ describe('Worker class', function () {
     let updateSpy;
 
     beforeEach(function () {
+      anchorMoment = moment(anchor);
+      clock = sinon.useFakeTimers(anchorMoment.valueOf());
+
       job = mockQueue.client.get();
       worker = new Worker(mockQueue, 'test', noop);
       updateSpy = sinon.spy(mockQueue.client, 'update');
     });
+
+    afterEach(() => {
+      clock.restore();
+    });
+
 
     it('should use version on update', function () {
       worker._failJob(job);
@@ -279,7 +297,6 @@ describe('Worker class', function () {
       const completedTimestamp = moment(doc.completed_at).valueOf();
       expect(completedTimestamp).to.be.greaterThan(startTime);
     });
-
   });
 
   describe('performing a job', function () {
@@ -288,7 +305,6 @@ describe('Worker class', function () {
     let updateSpy;
 
     beforeEach(function () {
-      clock.restore();
       payload = {
         value: random(0, 100, true)
       };
