@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/w33ble/elastique.svg?branch=master)](https://travis-ci.org/w33ble/elastique) [![Coverage Status](https://coveralls.io/repos/github/w33ble/elastique/badge.svg?branch=master)](https://coveralls.io/github/w33ble/elastique?branch=master)
+[![Build Status](https://travis-ci.org/w33ble/elastique.svg?branch=master)](https://travis-ci.org/w33ble/elastique) [![codecov](https://codecov.io/gh/w33ble/elastique/branch/master/graph/badge.svg)](https://codecov.io/gh/w33ble/elastique)
 
 # Elasticsearch-powered job queue
 
