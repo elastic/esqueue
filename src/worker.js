@@ -4,6 +4,7 @@ import moment from 'moment';
 import Bluebird from 'bluebird';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
+import { WorkerTimeoutError } from './helpers/errors';
 
 const puid = new Puid();
 const debug = logger('worker');
@@ -115,8 +116,22 @@ export default class Job extends events.EventEmitter {
   _performJob(job) {
     this.debug(`Starting job ${job._id}`);
 
-    return Bluebird.fromCallback((cb) => this.workerFn(job._source.payload, cb))
-    .then((output) => {
+    const workerOutput = new Promise((resolve, reject) => {
+      this.workerFn.call(null, job._source.payload, function (err, cbOutput) {
+        if (err) return reject(err);
+        resolve(cbOutput);
+      });
+
+      setTimeout(function () {
+        reject(new WorkerTimeoutError({
+          timeout: job._source.timeout,
+          jobId: job._id,
+        }));
+      }, job._source.timeout);
+    });
+
+    return workerOutput.then((output) => {
+      // job execution was successful
       this.debug(`Completed job ${job._id}`);
 
       const completedTime = moment().toISOString();
@@ -140,8 +155,13 @@ export default class Job extends events.EventEmitter {
         throw err;
       });
     }, (jobErr) => {
-      this.debug(`Failure occurred during job ${job._id}`);
+      // job execution failed
+      if (jobErr.type === 'WorkerTimeout') {
+        this.debug(`Timeout on job ${job._id}`);
+        return;
+      }
 
+      this.debug(`Failure occurred on job ${job._id}`);
       return this._failJob(job, jobErr.toString())
       .catch(() => false)
       .then(() => {
