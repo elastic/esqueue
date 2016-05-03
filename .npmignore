@@ -1,4 +1,8 @@
 src
 test
+coverage.lcov
 .travis.yml
 .nyc_output
+.babelrc
+.eslintrc
+.node-version
