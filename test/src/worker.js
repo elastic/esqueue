@@ -220,6 +220,21 @@ describe('Worker class', function () {
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
       return worker._failJob(job);
     });
+
+    it('should set completed time and status to failed', function () {
+      const startTime = moment().valueOf();
+      const msg = 'test message';
+      clock.tick(100);
+
+      worker._failJob(job, msg);
+      const doc = updateSpy.firstCall.args[0].body.doc;
+      expect(doc).to.have.property('output');
+      expect(doc).to.have.property('status', JOB_STATUS_FAILED);
+      expect(doc).to.have.property('completed_at');
+      const completedTimestamp = moment(doc.completed_at).valueOf();
+      expect(completedTimestamp).to.be.greaterThan(startTime);
+    });
+
   });
 
   describe('performing a job', function () {
@@ -311,49 +326,19 @@ describe('Worker class', function () {
       });
     });
 
-    it('should append erorr output to job', function (done) {
+    it('should append error output to job', function (done) {
       const workerFn = function (jobPayload, cb) {
         cb(new Error('test error'));
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
-
-      worker._performJob(job)
-      .then(() => done(new Error('should not resolve')))
-      .catch((err) => {
-        try {
-          sinon.assert.calledOnce(updateSpy);
-          const query = updateSpy.firstCall.args[0];
-          expect(query).to.have.property('index', job._index);
-          expect(query).to.have.property('type', job._type);
-          expect(query).to.have.property('id', job._id);
-          expect(query).to.have.property('version', job._version);
-          expect(query.body.doc).to.have.property('output');
-          expect(query.body.doc.output).to.have.property('content_type', false);
-          expect(query.body.doc.output).to.have.property('content', err.toString());
-          done();
-        } catch (e) {
-          done(e);
-        }
-      });
-    });
-
-    it('should set completed time and status to failed', function (done) {
-      const startTime = moment().valueOf();
-      const workerFn = function (jobPayload, cb) {
-        cb(new Error('test error'));
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
+      const failStub = sinon.stub(worker, '_failJob');
 
       worker._performJob(job)
       .then(() => done(new Error('should not resolve')))
       .catch(() => {
         try {
-          sinon.assert.calledOnce(updateSpy);
-          const doc = updateSpy.firstCall.args[0].body.doc;
-          expect(doc).to.have.property('status', JOB_STATUS_FAILED);
-          expect(doc).to.have.property('completed_at');
-          const completedTimestamp = moment(doc.completed_at).valueOf();
-          expect(completedTimestamp).to.be.greaterThan(startTime);
+          sinon.assert.calledOnce(failStub);
+          sinon.assert.calledWith(failStub, job, 'Error: test error');
           done();
         } catch (e) {
           done(e);
