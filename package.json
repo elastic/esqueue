@@ -4,8 +4,8 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run build && npm run mocha",
-    "mocha": "mocha --compilers js:babel-core/register test/src/**",
+    "test": "npm run build && npm run unit",
+    "unit": "nyc --require babel-core/register mocha test/src/**",
     "build": "babel src --out-dir lib",
     "prepublish": "in-publish && npm run test || not-in-publish"
   },
@@ -26,6 +26,7 @@
     "eslint-plugin-react": "~4.2.3",
     "expect.js": "~0.3.1",
     "mocha": "~2.4.5",
+    "nyc": "~6.4.2",
     "proxyquire": "~1.7.4",
     "sinon": "~1.17.3"
   },
