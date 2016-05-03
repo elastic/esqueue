@@ -4,11 +4,11 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "test": "npm run build && npm run unit",
-    "unit": "nyc --require babel-core/register mocha test/src/**",
+    "build": "rm -rf lib && babel src --out-dir lib",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
-    "build": "babel src --out-dir lib",
-    "prepublish": "in-publish && npm run test || not-in-publish"
+    "prepublish": "in-publish && npm run test || not-in-publish",
+    "test": "npm run build && npm run unit",
+    "unit": "nyc --require babel-core/register mocha test/src/**"
   },
   "author": "",
   "license": "Apache-2.0",
