@@ -1,7 +1,6 @@
 import events from 'events';
 import Puid from 'puid';
 import moment from 'moment';
-import Bluebird from 'bluebird';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
 import { WorkerTimeoutError } from './helpers/errors';
