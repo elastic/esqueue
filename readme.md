@@ -18,7 +18,7 @@ Simply include the module in your application.
 
 The first step is to create a new Queue instance. This is your point of entry, is the way to create and coordinate jobs and workers.
 
-```
+```js
 var index = 'my-index';
 var options = {};
 
@@ -40,7 +40,7 @@ client | | Options to use when creating a new client instance - see [the elastic
 
 The end result of creating a new job is a new document in Elasticsearch, which workers will search for and attempt to perform an action based on.
 
-```
+```js
 var type = 'example';
 var payload = {};
 var options = {};
@@ -64,7 +64,7 @@ priority | `0` | Used to move jobs up the queue. Uses nice values from `-20` to 
 
 Workers are functions that take a job's `payload`, perform an action, and optionally provide output. If output is returned, it will be written to the `job` document. Workers *do not* have access to the underlying job instance, just the job information that is indexed to Elasticsearch.
 
-```
+```js
 var type = 'example';
 var workerFn = function (payload) {
   // Do some work, using the payload if required
@@ -77,7 +77,7 @@ var worker = queue.registerWorker(type, workerFn, options);
 
 If you need to do async work, simply return a Promise. To handle errors, either throw or reject the returned Promise.
 
-```
+```js
 var type = 'example';
 var workerFn = function (payload) {
   // Do some work, using the payload if required
@@ -106,7 +106,7 @@ size | `10` | Number of records to return when polling for new jobs. Higher valu
 
 The worker's `output` can either be the raw output from the job, or on object that specifies the output's content type.
 
-```
+```js
 var workerFn1 = function (payload, cb) {
   // Do some work, using the payload if required
   var output = new Date().toString();
