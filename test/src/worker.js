@@ -313,9 +313,8 @@ describe('Worker class', function () {
     });
 
     it('should call the workerFn with the payload', function (done) {
-      const workerFn = function (jobPayload, cb) {
+      const workerFn = function (jobPayload) {
         expect(jobPayload).to.eql(payload);
-        cb();
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
 
@@ -324,9 +323,9 @@ describe('Worker class', function () {
     });
 
     it('should update the job with the workerFn output', function () {
-      const workerFn = function (jobPayload, cb) {
+      const workerFn = function (jobPayload) {
         expect(jobPayload).to.eql(payload);
-        cb(null, payload);
+        return payload;
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
 
@@ -346,9 +345,11 @@ describe('Worker class', function () {
 
     it('should update the job status and completed time', function () {
       const startTime = moment().valueOf();
-      const workerFn = function (jobPayload, cb) {
+      const workerFn = function (jobPayload) {
         expect(jobPayload).to.eql(payload);
-        setTimeout(() => cb(null, payload), 10);
+        return new Promise(function (resolve) {
+          setTimeout(() => resolve(payload), 10);
+        });
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
 
@@ -364,8 +365,8 @@ describe('Worker class', function () {
     });
 
     it('should append error output to job', function () {
-      const workerFn = function (jobPayload, cb) {
-        cb(new Error('test error'));
+      const workerFn = function () {
+        throw new Error('test error');
       };
       const worker = new Worker(mockQueue, 'test', workerFn);
       const failStub = sinon.stub(worker, '_failJob');
@@ -386,10 +387,12 @@ describe('Worker class', function () {
     const timeoutPadding = 10;
 
     beforeEach(function () {
-      const workerFn = function (jobPayload, cb) {
-        setTimeout(() => {
-          cb();
-        }, timeout + timeoutPadding);
+      const workerFn = function () {
+        return new Promise(function (resolve) {
+          setTimeout(() => {
+            resolve();
+          }, timeout + timeoutPadding);
+        });
       };
       worker = new Worker(mockQueue, 'test', workerFn);
       job = {
