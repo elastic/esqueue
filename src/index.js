@@ -4,7 +4,7 @@ import indexTimestamp from './helpers/index_timestamp';
 import logger from './helpers/logger';
 import Job from './job.js';
 import Worker from './worker.js';
-import { omit } from 'lodash';
+import omit from 'lodash.omit';
 
 const debug = logger('queue');
 

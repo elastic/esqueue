@@ -1,5 +1,5 @@
 import events from 'events';
-import { isPlainObject } from 'lodash';
+import isPlainObject from 'lodash.isplainobject';
 import Puid from 'puid';
 import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
