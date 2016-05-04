@@ -62,13 +62,31 @@ priority | `0` | Used to move jobs up the queue. Uses nice values from `-20` to 
 
 ### Creating a worker
 
-Workers are functions that take a job's `payload`, perform an action, and optionally write their output to the `job` document. They have access to the underlying job instance, just the information that is indexed to Elasticsearch.
+Workers are functions that take a job's `payload`, perform an action, and optionally provide output. If output is returned, it will be written to the `job` document. Workers *do not* have access to the underlying job instance, just the job information that is indexed to Elasticsearch.
 
 ```
 var type = 'example';
-var workerFn = function (payload, cb) {
+var workerFn = function (payload) {
   // Do some work, using the payload if required
-  cb(err, output);
+  return 'output';
+};
+var options = {};
+
+var worker = queue.registerWorker(type, workerFn, options);
+```
+
+If you need to do async work, simply return a Promise. To handle errors, either throw or reject the returned Promise.
+
+```
+var type = 'example';
+var workerFn = function (payload) {
+  // Do some work, using the payload if required
+  return new Promise(function(resolve, reject) {
+    doAsyncWork(function (err, result) {
+      if (err) return reject(err);
+      resolve(results);
+    })
+  })
 };
 var options = {};
 
