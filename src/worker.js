@@ -35,7 +35,6 @@ export default class Job extends events.EventEmitter {
   }
 
   _claimJob(job) {
-    this.debug(`Attempting to claim job ${job._id}`);
     const m = moment();
     const startTime = m.toISOString();
     const expirationTime = m.add(job._source.timeout).toISOString();
@@ -204,8 +203,12 @@ export default class Job extends events.EventEmitter {
     })
     .then((mappedJobs) => mappedJobs.filter(Boolean))
     .then((claimedJobs) => {
-      if (claimedJobs.length !== 1) return;
+      if (claimedJobs.length !== 1) {
+        this.debug(`All ${jobs.length} jobs already claimed`);
+        return;
+      }
       const job = claimedJobs[0];
+      this.debug(`Claimed job ${job._id}`);
       return this._performJob(job);
     })
     .finally(() => this._startJobPolling());
