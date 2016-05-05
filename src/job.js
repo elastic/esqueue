@@ -5,7 +5,7 @@ import logger from './helpers/logger';
 import { jobStatuses } from './helpers/constants';
 import createIndex from './helpers/create_index';
 
-const debug = logger('job');
+const debug = logger('esqueue:job');
 const puid = new Puid();
 
 export default class Job extends events.EventEmitter {

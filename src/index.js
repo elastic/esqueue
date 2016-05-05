@@ -6,7 +6,7 @@ import Job from './job.js';
 import Worker from './worker.js';
 import omit from 'lodash.omit';
 
-const debug = logger('queue');
+const debug = logger('esqueue:queue');
 
 export default class Esqueue extends events.EventEmitter {
   constructor(index, options = {}) {

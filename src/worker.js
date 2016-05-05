@@ -6,7 +6,7 @@ import { jobStatuses } from './helpers/constants';
 import { WorkerTimeoutError } from './helpers/errors';
 
 const puid = new Puid();
-const debug = logger('worker');
+const debug = logger('esqueue:worker');
 
 export default class Job extends events.EventEmitter {
   constructor(queue, type, workerFn, opts = {}) {
