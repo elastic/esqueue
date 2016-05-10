@@ -119,6 +119,7 @@ export default class Job extends events.EventEmitter {
       resolve(this.workerFn.call(null, job._source.payload));
 
       setTimeout(function () {
+        this.debug(`Timeout processing job ${job._id}`);
         reject(new WorkerTimeoutError({
           timeout: job._source.timeout,
           jobId: job._id,
