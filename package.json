@@ -1,7 +1,7 @@
 {
   "name": "esqueue",
-  "version": "0.2.1",
-  "description": "",
+  "version": "0.2.2",
+  "description": "Job queue, powered by Elasticsearch",
   "main": "lib/index.js",
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib",
@@ -11,6 +11,12 @@
     "unit": "nyc --require babel-core/register mocha test/src/**"
   },
   "author": "Joe Fleming (https://github.com/w33ble)",
+  "keywords": [
+    "job",
+    "queue",
+    "worker",
+    "elasticsearch"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/w33ble/esqueue.git"

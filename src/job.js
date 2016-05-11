@@ -36,6 +36,7 @@ export default class Job extends events.EventEmitter {
           payload: this.payload,
           priority: this.priority,
           timeout: this.timeout,
+          process_expiration: new Date(0), // use epoch so the job query works
           created_at: new Date(),
           attempts: 0,
           max_attempts: this.maxAttempts,
