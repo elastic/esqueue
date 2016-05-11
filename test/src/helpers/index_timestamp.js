@@ -25,32 +25,32 @@ describe('Index interval', function () {
     });
 
     it('should return the year', function () {
-      var timestamp = indexTimestamp('year');
+      const timestamp = indexTimestamp('year');
       expect(timestamp).to.equal('2016');
     });
 
     it('should return the year and month', function () {
-      var timestamp = indexTimestamp('month');
+      const timestamp = indexTimestamp('month');
       expect(timestamp).to.equal('2016-04');
     });
 
     it('should return the year, month, and first day of the week', function () {
-      var timestamp = indexTimestamp('week');
+      const timestamp = indexTimestamp('week');
       expect(timestamp).to.equal('2016-03-27');
     });
 
     it('should return the year, month, and day of the week', function () {
-      var timestamp = indexTimestamp('day');
+      const timestamp = indexTimestamp('day');
       expect(timestamp).to.equal('2016-04-02');
     });
 
     it('should return the year, month, day and hour', function () {
-      var timestamp = indexTimestamp('hour');
+      const timestamp = indexTimestamp('hour');
       expect(timestamp).to.equal('2016-04-02-01');
     });
 
     it('should return the year, month, day, hour and minute', function () {
-      var timestamp = indexTimestamp('minute');
+      const timestamp = indexTimestamp('minute');
       expect(timestamp).to.equal('2016-04-02-01-02');
     });
   });

@@ -11,7 +11,7 @@ function Client() {
 }
 
 Client.prototype.index = function (params = {}) {
-  var shardCount = 2;
+  const shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
     _type: params.type || 'type',
@@ -83,7 +83,7 @@ Client.prototype.search = function (params = {}, count = 5, source = {}) {
 };
 
 Client.prototype.update = function (params = {}) {
-  var shardCount = 2;
+  const shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
     _type: params.type || 'type',

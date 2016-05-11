@@ -1,4 +1,4 @@
-var schema = {
+const schema = {
   payload: { type: 'object', enabled: false },
   priority: { type: 'short' },
   timeout: { type: 'long' },

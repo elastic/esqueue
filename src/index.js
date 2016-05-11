@@ -25,7 +25,7 @@ export default class Esqueue extends events.EventEmitter {
   }
 
   _initTasks() {
-    var initTasks = [
+    const initTasks = [
       this.client.ping({ timeout: 3000 }),
     ];
 
