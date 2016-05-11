@@ -149,7 +149,8 @@ export default class Job extends events.EventEmitter {
       })
       .catch((err) => {
         if (err.statusCode === 409) return false;
-        throw err;
+        this.debug(`Failure saving job output ${job._id}`, err);
+        this.emit('job_error', err);
       });
     }, (jobErr) => {
       // job execution failed
@@ -159,7 +160,7 @@ export default class Job extends events.EventEmitter {
         return;
       }
 
-      this.debug(`Failure occurred on job ${job._id}`);
+      this.debug(`Failure occurred on job ${job._id}`, jobErr);
       this.emit('job_error', jobErr);
       return this._failJob(job, jobErr.toString());
     });
