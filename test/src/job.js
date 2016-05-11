@@ -95,6 +95,16 @@ describe('Job Class', function () {
       });
     });
 
+    it('should set an expired process_expiration time', function () {
+      const now = new Date().getTime();
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('process_expiration');
+        expect(newDoc.body.process_expiration.getTime()).to.be.lessThan(now);
+      });
+    });
+
     it('should set attempt count', function () {
       const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
