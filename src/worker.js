@@ -26,6 +26,7 @@ export default class Job extends events.EventEmitter {
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
     this._checker = false;
+    this.debug(`Created worker for type ${this.type}`);
     this._startJobPolling();
   }
 
@@ -118,7 +119,7 @@ export default class Job extends events.EventEmitter {
     const workerOutput = new Promise((resolve, reject) => {
       resolve(this.workerFn.call(null, job._source.payload));
 
-      setTimeout(function () {
+      setTimeout(() => {
         this.debug(`Timeout processing job ${job._id}`);
         reject(new WorkerTimeoutError({
           timeout: job._source.timeout,
