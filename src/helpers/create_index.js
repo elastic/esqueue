@@ -1,4 +1,7 @@
-var schema = {
+import { defaultSettings } from './constants';
+
+const schema = {
+  jobtype: { type: 'string', index: 'not_analyzed' },
   payload: { type: 'object', enabled: false },
   priority: { type: 'short' },
   timeout: { type: 'long' },
@@ -9,7 +12,7 @@ var schema = {
   completed_at: { type: 'date' },
   attempts: { type: 'short' },
   max_attempts: { type: 'short' },
-  status: { type: 'keyword' },
+  status: { type: 'string', index: 'not_analyzed' },
   output: {
     type: 'object',
     properties: {
@@ -19,14 +22,9 @@ var schema = {
   }
 };
 
-export default function createIndex(client, indexName) {
-  const indexBody = {
-    mappings: {
-      _default_: {
-        properties: schema
-      }
-    }
-  };
+export default function createIndex(client, indexName, doctype = defaultSettings.DEFAULT_SETTING_DOCTYPE) {
+  const indexBody = { mappings : {} };
+  indexBody.mappings[doctype] = { properties: schema };
 
   return client.indices.exists({
     index: indexName,

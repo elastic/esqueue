@@ -2,7 +2,7 @@ import events from 'events';
 import isPlainObject from 'lodash.isplainobject';
 import Puid from 'puid';
 import logger from './helpers/logger';
-import { jobStatuses } from './helpers/constants';
+import contstants from './helpers/constants';
 import createIndex from './helpers/create_index';
 
 const debug = logger('esqueue:job');
@@ -18,21 +18,23 @@ export default class Job extends events.EventEmitter {
     this.client = client;
     this.id = puid.generate();
     this.index = index;
-    this.type = type;
+    this.jobtype = type;
     this.payload = payload;
     this.timeout = options.timeout || 10000;
     this.maxAttempts = options.max_attempts || 3;
     this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
+    this.doctype = options.doctype || contstants.DEFAULT_SETTING_DOCTYPE;
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
-    this.ready = createIndex(client, index)
+    this.ready = createIndex(client, index, this.doctype)
     .then(() => {
       return this.client.index({
         index: this.index,
-        type: this.type,
+        type: this.doctype,
         id: this.id,
         body: {
+          jobtype: this.jobtype,
           payload: this.payload,
           priority: this.priority,
           timeout: this.timeout,
@@ -40,7 +42,7 @@ export default class Job extends events.EventEmitter {
           created_at: new Date(),
           attempts: 0,
           max_attempts: this.maxAttempts,
-          status: jobStatuses.JOB_STATUS_PENDING,
+          status: contstants.JOB_STATUS_PENDING,
         }
       })
       .then((doc) => {
@@ -65,7 +67,7 @@ export default class Job extends events.EventEmitter {
     .then(() => {
       return this.client.get({
         index: this.index,
-        type: this.type,
+        type: this.doctype,
         id: this.id
       });
     })
@@ -83,7 +85,8 @@ export default class Job extends events.EventEmitter {
     return Object.assign({
       id: this.id,
       index: this.index,
-      type: this.type,
+      type: this.doctype,
+      jobtype: this.jobtype,
       payload: this.payload,
       timeout: this.timeout,
       max_attempts: this.maxAttempts,

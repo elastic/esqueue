@@ -3,7 +3,7 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import { JOB_STATUS_PENDING } from '../../lib/helpers/constants';
+import { JOB_STATUS_PENDING, DEFAULT_SETTING_DOCTYPE } from '../../lib/helpers/constants';
 
 const createIndexMock = sinon.stub().returns(Promise.resolve('mock'));
 const module = proxyquire.noPreserveCache()('../../lib/job', {
@@ -73,9 +73,20 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc).to.have.property('index', index);
-        expect(newDoc).to.have.property('type', type);
+        expect(newDoc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
         expect(newDoc).to.have.property('body');
         expect(newDoc.body).to.have.property('payload', payload);
+      });
+    });
+
+    it('should index the job type', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc).to.have.property('index', index);
+        expect(newDoc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
+        expect(newDoc).to.have.property('body');
+        expect(newDoc.body).to.have.property('jobtype', type);
       });
     });
 
@@ -92,6 +103,16 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc.body).to.have.property('created_at');
+      });
+    });
+
+    it('should set an expired process_expiration time', function () {
+      const now = new Date().getTime();
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('process_expiration');
+        expect(newDoc.body.process_expiration.getTime()).to.be.lessThan(now);
       });
     });
 
@@ -152,14 +173,17 @@ describe('Job Class', function () {
 
     it('should return the job document', function () {
       const job = new Job(client, index, type, payload);
+
       return job.get()
       .then((doc) => {
         const jobDoc = job.document; // document should be resolved
         expect(doc).to.have.property('index', index);
-        expect(doc).to.have.property('type', type);
+        expect(doc).to.have.property('type', jobDoc.type);
         expect(doc).to.have.property('id', jobDoc.id);
         expect(doc).to.have.property('version', jobDoc.version);
+
         expect(doc).to.have.property('payload');
+        expect(doc).to.have.property('jobtype');
         expect(doc).to.have.property('priority');
         expect(doc).to.have.property('timeout');
       });
@@ -185,7 +209,8 @@ describe('Job Class', function () {
 
       const doc = job.toJSON();
       expect(doc).to.have.property('index', index);
-      expect(doc).to.have.property('type', type);
+      expect(doc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
+      expect(doc).to.have.property('jobtype', type);
       expect(doc).to.have.property('timeout', options.timeout);
       expect(doc).to.have.property('max_attempts', options.max_attempts);
       expect(doc).to.have.property('priority', options.priority);
