@@ -1,5 +1,6 @@
 import { uniqueId, times, random } from 'lodash';
 import elasticsearch from 'elasticsearch';
+import { DEFAULT_SETTING_DOCTYPE } from '../../lib/helpers/constants';
 
 function Client() {
   this.indices = {
@@ -14,7 +15,7 @@ Client.prototype.index = function (params = {}) {
   const shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
-    _type: params.type || 'type',
+    _type: params.type || DEFAULT_SETTING_DOCTYPE,
     _id: params.id || uniqueId('testDoc'),
     _version: 1,
     _shards: { total: shardCount, successful: shardCount, failed: 0 },
@@ -30,6 +31,7 @@ Client.prototype.get = function (params = {}, source = {}) {
   if (params === elasticsearch.errors.NotFound) return elasticsearch.errors.NotFound;
 
   const _source = Object.assign({
+    jobtype: 'jobtype',
     payload: {
       id: 'sample-job-1',
       now: 'Mon Apr 25 2016 14:13:04 GMT-0700 (MST)'
@@ -44,7 +46,7 @@ Client.prototype.get = function (params = {}, source = {}) {
 
   return {
     _index: params.index || 'index',
-    _type: params.type || 'type',
+    _type: params.type || DEFAULT_SETTING_DOCTYPE,
     _id: params.id || 'AVRPRLnlp7Ur1SZXfT-T',
     _version: params.version || 1,
     found: true,
@@ -56,7 +58,7 @@ Client.prototype.search = function (params = {}, count = 5, source = {}) {
   const hits = times(count, () => {
     return {
       _index: params.index || 'index',
-      _type: params.type || 'type',
+      _type: params.type || DEFAULT_SETTING_DOCTYPE,
       _id: uniqueId('documentId'),
       _version: random(1, 5),
       _score: null,
@@ -86,7 +88,7 @@ Client.prototype.update = function (params = {}) {
   const shardCount = 2;
   return Promise.resolve({
     _index: params.index || 'index',
-    _type: params.type || 'type',
+    _type: params.type || DEFAULT_SETTING_DOCTYPE,
     _id: params.id || uniqueId('testDoc'),
     _version: params.version + 1 || 2,
     _shards: { total: shardCount, successful: shardCount, failed: 0 },

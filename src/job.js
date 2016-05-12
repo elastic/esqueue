@@ -18,7 +18,7 @@ export default class Job extends events.EventEmitter {
     this.client = client;
     this.id = puid.generate();
     this.index = index;
-    this.type = type;
+    this.jobtype = type;
     this.payload = payload;
     this.timeout = options.timeout || 10000;
     this.maxAttempts = options.max_attempts || 3;
@@ -31,9 +31,10 @@ export default class Job extends events.EventEmitter {
     .then(() => {
       return this.client.index({
         index: this.index,
-        type: this.type,
+        type: this.doctype,
         id: this.id,
         body: {
+          jobtype: this.jobtype,
           payload: this.payload,
           priority: this.priority,
           timeout: this.timeout,
@@ -66,7 +67,7 @@ export default class Job extends events.EventEmitter {
     .then(() => {
       return this.client.get({
         index: this.index,
-        type: this.type,
+        type: this.doctype,
         id: this.id
       });
     })
@@ -84,7 +85,8 @@ export default class Job extends events.EventEmitter {
     return Object.assign({
       id: this.id,
       index: this.index,
-      type: this.type,
+      type: this.doctype,
+      jobtype: this.jobtype,
       payload: this.payload,
       timeout: this.timeout,
       max_attempts: this.maxAttempts,
