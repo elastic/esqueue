@@ -2,6 +2,7 @@ import events from 'events';
 import createClient from './helpers/es_client';
 import indexTimestamp from './helpers/index_timestamp';
 import logger from './helpers/logger';
+import { defaultSettings } from './helpers/constants';
 import Job from './job.js';
 import Worker from './worker.js';
 import omit from 'lodash.omit';
@@ -15,8 +16,9 @@ export default class Esqueue extends events.EventEmitter {
     super();
     this.index = index;
     this.settings = Object.assign({
-      interval: 'week',
-      timeout: 10000,
+      interval: defaultSettings.DEFAULT_SETTING_INTERVAL,
+      timeout: defaultSettings.DEFAULT_SETTING_TIMEOUT,
+      doctype: defaultSettings.DEFAULT_SETTING_DOCTYPE,
     }, omit(options, [ 'client' ]));
     this.client = createClient(options.client || {});
 
@@ -38,10 +40,13 @@ export default class Esqueue extends events.EventEmitter {
   addJob(type, payload, opts = {}) {
     const timestamp = indexTimestamp(this.settings.interval);
     const index = `${this.index}-${timestamp}`;
+    const defaults = {
+      timeout: this.settings.timeout,
+    };
 
-    const options = Object.assign({
-      timeout: this.settings.timeout
-    }, opts);
+    const options = Object.assign(defaults, opts, {
+      doctype: this.settings.doctype
+    });
 
     return new Job(this.client, index, type, payload, options);
   }

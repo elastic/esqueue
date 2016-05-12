@@ -1,3 +1,5 @@
+import { defaultSettings } from './constants';
+
 const schema = {
   payload: { type: 'object', enabled: false },
   priority: { type: 'short' },
@@ -19,14 +21,9 @@ const schema = {
   }
 };
 
-export default function createIndex(client, indexName) {
-  const indexBody = {
-    mappings: {
-      _default_: {
-        properties: schema
-      }
-    }
-  };
+export default function createIndex(client, indexName, doctype = defaultSettings.DEFAULT_SETTING_DOCTYPE) {
+  const indexBody = { mappings : {} };
+  indexBody.mappings[doctype] = { properties: schema };
 
   return client.indices.exists({
     index: indexName,
