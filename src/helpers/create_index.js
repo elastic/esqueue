@@ -1,6 +1,7 @@
 import { defaultSettings } from './constants';
 
 const schema = {
+  type: { type: 'string', index: 'not_analyzed' },
   payload: { type: 'object', enabled: false },
   priority: { type: 'short' },
   timeout: { type: 'long' },
@@ -11,7 +12,7 @@ const schema = {
   completed_at: { type: 'date' },
   attempts: { type: 'short' },
   max_attempts: { type: 'short' },
-  status: { type: 'keyword' },
+  status: { type: 'string', index: 'not_analyzed' },
   output: {
     type: 'object',
     properties: {
