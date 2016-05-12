@@ -1,10 +1,10 @@
 import expect from 'expect.js';
 import sinon from 'sinon';
 import moment from 'moment';
-import { noop, random } from 'lodash';
+import { noop, random, get, find } from 'lodash';
 import Worker from '../../lib/worker';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import { JOB_STATUS_PROCESSING, JOB_STATUS_COMPLETED, JOB_STATUS_FAILED } from '../../lib/helpers/constants';
+import constants from '../../lib/helpers/constants';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
 const defaults = {
@@ -106,48 +106,102 @@ describe('Worker class', function () {
   });
 
   describe('searching for jobs', function () {
+    let searchSpy;
+
+    function getSearchParams(jobtype, params = {}) {
+      new Worker(mockQueue, jobtype, noop, params);
+      clock.tick(defaults.interval);
+      return searchSpy.firstCall.args[0];
+    }
+
     beforeEach(() => {
       anchorMoment = moment(anchor);
       clock = sinon.useFakeTimers(anchorMoment.valueOf());
+      searchSpy = sinon.spy(mockQueue.client, 'search');
     });
 
     afterEach(() => {
       clock.restore();
     });
 
-    it('should start polling for jobs after interval', function () {
-      const searchSpy = sinon.spy(mockQueue.client, 'search');
-      new Worker(mockQueue, 'test', noop);
-      sinon.assert.notCalled(searchSpy);
-      clock.tick(defaults.interval);
-      sinon.assert.calledOnce(searchSpy);
+    describe('polling interval', function () {
+      it('should start polling for jobs after interval', function () {
+        new Worker(mockQueue, 'test', noop);
+        sinon.assert.notCalled(searchSpy);
+        clock.tick(defaults.interval);
+        sinon.assert.calledOnce(searchSpy);
+      });
+
+      it('should use interval option to control polling', function () {
+        const interval = 567;
+        new Worker(mockQueue, 'test', noop, { interval });
+        sinon.assert.notCalled(searchSpy);
+        clock.tick(interval);
+        sinon.assert.calledOnce(searchSpy);
+      });
     });
 
-    it('should use interval option to control polling', function () {
-      const interval = 567;
-      const searchSpy = sinon.spy(mockQueue.client, 'search');
-      new Worker(mockQueue, 'test', noop, { interval });
-      sinon.assert.notCalled(searchSpy);
-      clock.tick(interval);
-      sinon.assert.calledOnce(searchSpy);
+    describe('query parameters', function () {
+      it('should query with version', function () {
+        const params = getSearchParams('test');
+        expect(params).to.have.property('version', true);
+      });
+
+      it('should query by default doctype', function () {
+        const params = getSearchParams('test');
+        expect(params).to.have.property('type', constants.DEFAULT_SETTING_DOCTYPE);
+      });
+
+      it('should query by custom doctype', function () {
+        const doctype = 'custom_test';
+        const params = getSearchParams('test', { doctype });
+        expect(params).to.have.property('type', doctype);
+      });
     });
 
-    it('should use default size', function () {
-      const searchSpy = sinon.spy(mockQueue.client, 'search');
-      new Worker(mockQueue, 'test', noop);
-      clock.tick(defaults.interval);
-      const body = searchSpy.firstCall.args[0].body;
-      expect(body).to.have.property('size', defaults.size);
+    describe('query body', function () {
+      const conditionPath = 'query.constant_score.filter.bool';
+      const jobtype = 'test_jobtype';
+
+      it('should search by job type', function () {
+        const { body } = getSearchParams(jobtype);
+        const conditions = get(body, conditionPath);
+        expect(conditions).to.have.property('must');
+        expect(conditions.must).to.eql({ term: { jobtype: jobtype } });
+      });
+
+      it('should search for pending or expired jobs', function () {
+        const { body } = getSearchParams(jobtype);
+        const conditions = get(body, conditionPath);
+        expect(conditions).to.have.property('should');
+
+        // this works because we are stopping the clock, so all times match
+        const nowTime = moment().toISOString();
+        const pending = { term: { status: 'pending'} };
+        const expired = { bool: { must: [
+          { term: { status: 'processing' } },
+          { range: { process_expiration: { lte: nowTime } } }
+        ] } };
+
+        const pendingMatch = find(conditions.should, pending);
+        expect(pendingMatch).to.not.be(undefined);
+
+        const expiredMatch = find(conditions.should, expired);
+        expect(expiredMatch).to.not.be(undefined);
+      });
+
+      it('should use default size', function () {
+        const { body } = getSearchParams(jobtype);
+        expect(body).to.have.property('size', defaults.size);
+      });
+
+      it('should observe the size option', function () {
+        const size = 25;
+        const { body } = getSearchParams(jobtype, { size });
+        expect(body).to.have.property('size', size);
+      });
     });
 
-    it('should observe the size option', function () {
-      const size = 25;
-      const searchSpy = sinon.spy(mockQueue.client, 'search');
-      new Worker(mockQueue, 'test', noop, { size });
-      clock.tick(defaults.interval);
-      const body = searchSpy.firstCall.args[0].body;
-      expect(body).to.have.property('size', size);
-    });
   });
 
   describe('claiming a job', function () {
@@ -193,7 +247,7 @@ describe('Worker class', function () {
     it('should update the job status', function () {
       worker._claimJob(job);
       const doc = updateSpy.firstCall.args[0].body.doc;
-      expect(doc).to.have.property('status', JOB_STATUS_PROCESSING);
+      expect(doc).to.have.property('status', constants.JOB_STATUS_PROCESSING);
     });
 
     it('should set job expiration time', function () {
@@ -267,7 +321,7 @@ describe('Worker class', function () {
     it('should set status to failed', function () {
       worker._failJob(job);
       const doc = updateSpy.firstCall.args[0].body.doc;
-      expect(doc).to.have.property('status', JOB_STATUS_FAILED);
+      expect(doc).to.have.property('status', constants.JOB_STATUS_FAILED);
     });
 
     it('should append error message if supplied', function () {
@@ -292,7 +346,7 @@ describe('Worker class', function () {
       worker._failJob(job, msg);
       const doc = updateSpy.firstCall.args[0].body.doc;
       expect(doc).to.have.property('output');
-      expect(doc).to.have.property('status', JOB_STATUS_FAILED);
+      expect(doc).to.have.property('status', constants.JOB_STATUS_FAILED);
       expect(doc).to.have.property('completed_at');
       const completedTimestamp = moment(doc.completed_at).valueOf();
       expect(completedTimestamp).to.be.greaterThan(startTime);
@@ -357,7 +411,7 @@ describe('Worker class', function () {
       .then(() => {
         sinon.assert.calledOnce(updateSpy);
         const doc = updateSpy.firstCall.args[0].body.doc;
-        expect(doc).to.have.property('status', JOB_STATUS_COMPLETED);
+        expect(doc).to.have.property('status', constants.JOB_STATUS_COMPLETED);
         expect(doc).to.have.property('completed_at');
         const completedTimestamp = moment(doc.completed_at).valueOf();
         expect(completedTimestamp).to.be.greaterThan(startTime);
