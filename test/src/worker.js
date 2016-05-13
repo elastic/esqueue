@@ -105,14 +105,8 @@ describe('Worker class', function () {
     });
   });
 
-  describe('searching for jobs', function () {
+  describe('polling for jobs', function () {
     let searchSpy;
-
-    function getSearchParams(jobtype, params = {}) {
-      new Worker(mockQueue, jobtype, noop, params);
-      clock.tick(defaults.interval);
-      return searchSpy.firstCall.args[0];
-    }
 
     beforeEach(() => {
       anchorMoment = moment(anchor);
@@ -124,37 +118,73 @@ describe('Worker class', function () {
       clock.restore();
     });
 
-    describe('polling interval', function () {
-      it('should start polling for jobs after interval', function () {
-        new Worker(mockQueue, 'test', noop);
-        sinon.assert.notCalled(searchSpy);
-        clock.tick(defaults.interval);
-        sinon.assert.calledOnce(searchSpy);
+    it('should start polling for jobs after interval', function () {
+      new Worker(mockQueue, 'test', noop);
+      sinon.assert.notCalled(searchSpy);
+      clock.tick(defaults.interval);
+      sinon.assert.calledOnce(searchSpy);
+    });
+
+    it('should use interval option to control polling', function () {
+      const interval = 567;
+      new Worker(mockQueue, 'test', noop, { interval });
+      sinon.assert.notCalled(searchSpy);
+      clock.tick(interval);
+      sinon.assert.calledOnce(searchSpy);
+    });
+  });
+
+  describe('query for pending jobs', function () {
+    let worker;
+    let searchStub;
+
+    function getSearchParams(jobtype = 'test', params = {}) {
+      worker = new Worker(mockQueue, jobtype, noop, params);
+      worker._getPendingJobs();
+      return searchStub.firstCall.args[0];
+    }
+
+    describe('error handling', function () {
+      beforeEach(() => {
       });
 
-      it('should use interval option to control polling', function () {
-        const interval = 567;
-        new Worker(mockQueue, 'test', noop, { interval });
-        sinon.assert.notCalled(searchSpy);
-        clock.tick(interval);
-        sinon.assert.calledOnce(searchSpy);
+      it('should pass search errors', function (done) {
+        searchStub = sinon.stub(mockQueue.client, 'search', () => Promise.reject());
+        worker = new Worker(mockQueue, 'test', noop);
+        worker._getPendingJobs()
+        .then(() => done(new Error('should not resolve')))
+        .catch(() => { done(); });
+      });
+
+      it('should swollow index missing errors', function (done) {
+        searchStub = sinon.stub(mockQueue.client, 'search', () => Promise.reject({
+          status: 404
+        }));
+        worker = new Worker(mockQueue, 'test', noop);
+        worker._getPendingJobs()
+        .then(() => { done(); })
+        .catch(() => done(new Error('should not reject')));
       });
     });
 
     describe('query parameters', function () {
+      beforeEach(() => {
+        searchStub = sinon.stub(mockQueue.client, 'search', () => Promise.resolve());
+      });
+
       it('should query with version', function () {
-        const params = getSearchParams('test');
+        const params = getSearchParams();
         expect(params).to.have.property('version', true);
       });
 
       it('should query by default doctype', function () {
-        const params = getSearchParams('test');
+        const params = getSearchParams();
         expect(params).to.have.property('type', constants.DEFAULT_SETTING_DOCTYPE);
       });
 
       it('should query by custom doctype', function () {
         const doctype = 'custom_test';
-        const params = getSearchParams('test', { doctype });
+        const params = getSearchParams('type', { doctype });
         expect(params).to.have.property('type', doctype);
       });
     });
@@ -162,6 +192,16 @@ describe('Worker class', function () {
     describe('query body', function () {
       const conditionPath = 'query.constant_score.filter.bool';
       const jobtype = 'test_jobtype';
+
+      beforeEach(() => {
+        searchStub = sinon.stub(mockQueue.client, 'search', () => Promise.resolve());
+        anchorMoment = moment(anchor);
+        clock = sinon.useFakeTimers(anchorMoment.valueOf());
+      });
+
+      afterEach(() => {
+        clock.restore();
+      });
 
       it('should search by job type', function () {
         const { body } = getSearchParams(jobtype);
@@ -201,8 +241,8 @@ describe('Worker class', function () {
         expect(body).to.have.property('size', size);
       });
     });
-
   });
+
 
   describe('claiming a job', function () {
     let params;
