@@ -267,6 +267,9 @@ export default class Job extends events.EventEmitter {
       return jobs;
     })
     .catch((err) => {
+      // ignore missing indices errors
+      if (err.status === 404) return;
+
       this.debug('job querying failed', err);
       this.emit('error', err);
       this.queue.emit('worker_error', {
