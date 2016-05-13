@@ -165,6 +165,24 @@ describe('Worker class', function () {
         .then(() => { done(); })
         .catch(() => done(new Error('should not reject')));
       });
+
+      it('should return an empty array on missing index', function (done) {
+        searchStub = sinon.stub(mockQueue.client, 'search', () => Promise.reject({
+          status: 404
+        }));
+        worker = new Worker(mockQueue, 'test', noop);
+        worker._getPendingJobs()
+        .then((res) => {
+          try {
+            expect(res).to.be.an(Array);
+            expect(res).to.have.length(0);
+            done();
+          } catch (e) {
+            done(e);
+          }
+        })
+        .catch(() => done(new Error('should not reject')));
+      });
     });
 
     describe('query parameters', function () {
