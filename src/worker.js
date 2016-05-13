@@ -180,7 +180,7 @@ export default class Job extends events.EventEmitter {
   }
 
   _claimPendingJobs(jobs) {
-    if (jobs.length === 0) return;
+    if (!jobs || jobs.length === 0) return;
 
     this._stopJobPolling();
     let claimed = false;
@@ -268,7 +268,7 @@ export default class Job extends events.EventEmitter {
     })
     .catch((err) => {
       // ignore missing indices errors
-      if (err.status === 404) return;
+      if (err.status === 404) return [];
 
       this.debug('job querying failed', err);
       this.emit('error', err);
