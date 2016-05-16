@@ -45,14 +45,14 @@ Client.prototype.get = function (params = {}, source = {}) {
     status: 'pending'
   }, source);
 
-  return {
+  return Promise.resolve({
     _index: params.index || 'index',
     _type: params.type || DEFAULT_SETTING_DOCTYPE,
     _id: params.id || 'AVRPRLnlp7Ur1SZXfT-T',
     _version: params.version || 1,
     found: true,
     _source: _source
-  };
+  });
 };
 
 Client.prototype.search = function (params = {}, count = 5, source = {}) {

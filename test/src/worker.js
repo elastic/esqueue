@@ -285,9 +285,12 @@ describe('Worker class', function () {
         id: 12345,
         version: 3
       };
-      job = mockQueue.client.get(params);
-      worker = new Worker(mockQueue, 'test', noop);
-      updateSpy = sinon.spy(mockQueue.client, 'update');
+      return mockQueue.client.get(params)
+      .then((jobDoc) => {
+        job = jobDoc;
+        worker = new Worker(mockQueue, 'test', noop);
+        updateSpy = sinon.spy(mockQueue.client, 'update');
+      });
     });
 
     afterEach(() => {
@@ -364,15 +367,17 @@ describe('Worker class', function () {
       anchorMoment = moment(anchor);
       clock = sinon.useFakeTimers(anchorMoment.valueOf());
 
-      job = mockQueue.client.get();
-      worker = new Worker(mockQueue, 'test', noop);
-      updateSpy = sinon.spy(mockQueue.client, 'update');
+      return mockQueue.client.get()
+      .then((jobDoc) => {
+        job = jobDoc;
+        worker = new Worker(mockQueue, 'test', noop);
+        updateSpy = sinon.spy(mockQueue.client, 'update');
+      });
     });
 
     afterEach(() => {
       clock.restore();
     });
-
 
     it('should use version on update', function () {
       worker._failJob(job);
@@ -427,8 +432,12 @@ describe('Worker class', function () {
       payload = {
         value: random(0, 100, true)
       };
-      job = mockQueue.client.get({}, { payload });
-      updateSpy = sinon.spy(mockQueue.client, 'update');
+
+      return mockQueue.client.get({}, { payload })
+      .then((jobDoc) => {
+        job = jobDoc;
+        updateSpy = sinon.spy(mockQueue.client, 'update');
+      });
     });
 
     it('should call the workerFn with the payload', function (done) {
