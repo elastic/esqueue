@@ -2,6 +2,11 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.4.0
+
+- [BREAKING] Change `priority` mapping to *byte*
+- Exclude `output.content` from _source when query jobs
+
 ## v0.3.2
 
 - Misisng indiced returns empty array (fixed errors in v0.3.1)
