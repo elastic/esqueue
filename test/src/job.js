@@ -200,11 +200,31 @@ describe('Job Class', function () {
         expect(doc).to.have.property('type', jobDoc.type);
         expect(doc).to.have.property('id', jobDoc.id);
         expect(doc).to.have.property('version', jobDoc.version);
+        expect(doc).to.have.property('created_by', defaultCreatedBy);
 
         expect(doc).to.have.property('payload');
         expect(doc).to.have.property('jobtype');
         expect(doc).to.have.property('priority');
         expect(doc).to.have.property('timeout');
+      });
+    });
+
+    it('should contain optional data', function () {
+      const optionals = {
+        created_by: 'some_ident'
+      };
+
+      const job = new Job(client, index, type, payload, optionals);
+      return Promise.resolve(client.get({}, optionals))
+      .then((doc) => {
+        console.log('mocked doc', doc);
+        sinon.stub(client, 'get').returns(Promise.resolve(doc));
+      })
+      .then(() => {
+        return job.get()
+        .then((doc) => {
+          expect(doc).to.have.property('created_by', optionals.created_by);
+        });
       });
     });
   });
@@ -230,11 +250,22 @@ describe('Job Class', function () {
       expect(doc).to.have.property('index', index);
       expect(doc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
       expect(doc).to.have.property('jobtype', type);
+      expect(doc).to.have.property('created_by', defaultCreatedBy);
       expect(doc).to.have.property('timeout', options.timeout);
       expect(doc).to.have.property('max_attempts', options.max_attempts);
       expect(doc).to.have.property('priority', options.priority);
       expect(doc).to.have.property('id');
       expect(doc).to.not.have.property('version');
+    });
+
+    it('should contain optional data', function () {
+      const optionals = {
+        created_by: 'some_ident'
+      };
+
+      const job = new Job(client, index, type, payload, optionals);
+      const doc = job.toJSON();
+      expect(doc).to.have.property('created_by', optionals.created_by);
     });
   });
 
