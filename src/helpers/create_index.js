@@ -3,7 +3,7 @@ import { defaultSettings } from './constants';
 const schema = {
   jobtype: { type: 'string', index: 'not_analyzed' },
   payload: { type: 'object', enabled: false },
-  priority: { type: 'short' },
+  priority: { type: 'byte' },
   timeout: { type: 'long' },
   process_expiration: { type: 'date' },
   created_by: { type: 'string', index: 'not_analyzed' },
