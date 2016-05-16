@@ -221,6 +221,13 @@ describe('Worker class', function () {
         clock.restore();
       });
 
+      it('should filter unwanted source data', function () {
+        const excludedFields = [ 'output.content' ];
+        const { body } = getSearchParams(jobtype);
+        expect(body).to.have.property('_source');
+        expect(body._source).to.eql({ exclude: excludedFields });
+      });
+
       it('should search by job type', function () {
         const { body } = getSearchParams(jobtype);
         const conditions = get(body, conditionPath);

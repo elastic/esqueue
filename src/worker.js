@@ -228,6 +228,9 @@ export default class Job extends events.EventEmitter {
   _getPendingJobs() {
     const nowTime = moment().toISOString();
     const query = {
+      _source : {
+        exclude: [ 'output.content' ]
+      },
       query: {
         constant_score: {
           filter: {
