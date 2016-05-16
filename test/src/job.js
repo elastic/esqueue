@@ -14,6 +14,7 @@ const Job = module;
 const maxPriority = 20;
 const minPriority = -20;
 const defaultPriority = 10;
+const defaultCreatedBy = null;
 
 describe('Job Class', function () {
   let client;
@@ -87,6 +88,24 @@ describe('Job Class', function () {
         expect(newDoc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
         expect(newDoc).to.have.property('body');
         expect(newDoc.body).to.have.property('jobtype', type);
+      });
+    });
+
+
+    it('should index the created_by value', function () {
+      const createdBy = 'user_identifier';
+      const job = new Job(client, index, type, payload, Object.assign({ created_by: createdBy }, options));
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('created_by', createdBy);
+      });
+    });
+
+    it('should index default created_by value', function () {
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const newDoc = validateDoc(client.index);
+        expect(newDoc.body).to.have.property('created_by', defaultCreatedBy);
       });
     });
 

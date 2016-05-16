@@ -20,6 +20,7 @@ export default class Job extends events.EventEmitter {
     this.index = index;
     this.jobtype = type;
     this.payload = payload;
+    this.created_by = options.created_by || null;
     this.timeout = options.timeout || 10000;
     this.maxAttempts = options.max_attempts || 3;
     this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
@@ -37,6 +38,7 @@ export default class Job extends events.EventEmitter {
           jobtype: this.jobtype,
           payload: this.payload,
           priority: this.priority,
+          created_by: this.created_by,
           timeout: this.timeout,
           process_expiration: new Date(0), // use epoch so the job query works
           created_at: new Date(),
@@ -87,6 +89,7 @@ export default class Job extends events.EventEmitter {
       index: this.index,
       type: this.doctype,
       jobtype: this.jobtype,
+      created_by: this.created_by,
       payload: this.payload,
       timeout: this.timeout,
       max_attempts: this.maxAttempts,

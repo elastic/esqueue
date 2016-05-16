@@ -32,6 +32,7 @@ Client.prototype.get = function (params = {}, source = {}) {
 
   const _source = Object.assign({
     jobtype: 'jobtype',
+    created_by: null,
     payload: {
       id: 'sample-job-1',
       now: 'Mon Apr 25 2016 14:13:04 GMT-0700 (MST)'
