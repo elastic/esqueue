@@ -6,6 +6,7 @@ Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes wh
 
 - [BREAKING] Change `priority` mapping to *byte*
 - Exclude `output.content` from _source when query jobs
+- Add optional `created_by` value to job documents
 
 ## v0.3.2
 

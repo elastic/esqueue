@@ -60,6 +60,7 @@ Option | Default | Description
 timeout | `10000` | Timeout for the job, if different than the timeout configured on the queue.
 max_attempts | `3` | Number of times to re-trying assigning the job to a worker before giving up and failing.
 priority | `0` | Used to move jobs up the queue. Uses nice values from `-20` to `20`.
+created_by | null | Used to filter job documents by a creator identifier; meant to be consumed by external applications.
 
 ### Creating a worker
 
