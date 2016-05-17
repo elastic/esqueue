@@ -231,8 +231,7 @@ describe('Worker class', function () {
       it('should search by job type', function () {
         const { body } = getSearchParams(jobtype);
         const conditions = get(body, conditionPath);
-        expect(conditions).to.have.property('must');
-        expect(conditions.must).to.eql({ term: { jobtype: jobtype } });
+        expect(conditions.filter).to.eql({ term: { jobtype: jobtype } });
       });
 
       it('should search for pending or expired jobs', function () {
@@ -243,7 +242,7 @@ describe('Worker class', function () {
         // this works because we are stopping the clock, so all times match
         const nowTime = moment().toISOString();
         const pending = { term: { status: 'pending'} };
-        const expired = { bool: { must: [
+        const expired = { bool: { filter: [
           { term: { status: 'processing' } },
           { range: { process_expiration: { lte: nowTime } } }
         ] } };

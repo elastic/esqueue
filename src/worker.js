@@ -235,11 +235,11 @@ export default class Job extends events.EventEmitter {
         constant_score: {
           filter: {
             bool: {
-              must: { term: { jobtype: this.jobtype } },
+              filter: { term: { jobtype: this.jobtype } },
               should: [
                 { term: { status: 'pending'} },
                 { bool:
-                  { must: [
+                  { filter: [
                     { term: { status: 'processing' } },
                     { range: { process_expiration: { lte: nowTime } } }
                   ] }
