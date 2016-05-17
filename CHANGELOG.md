@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.4.1
+
+- Use `filter` instead of `must` to query for outstanding jobs
+
 ## v0.4.0
 
 - [BREAKING] Change `priority` mapping to *byte*
