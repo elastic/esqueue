@@ -1,6 +1,6 @@
 {
   "name": "esqueue",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Job queue, powered by Elasticsearch",
   "main": "lib/index.js",
   "scripts": {
