@@ -5,6 +5,7 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "rm -rf lib && babel src --out-dir lib",
+    "package": "git checkout -B package-lib && npm run build && git add -f lib && git commit -m 'package lib' && echo Use npm to tag and publish",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prepublish": "in-publish && npm run test || not-in-publish",
     "test": "npm run build && npm run unit",
