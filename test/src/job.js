@@ -217,7 +217,6 @@ describe('Job Class', function () {
       const job = new Job(client, index, type, payload, optionals);
       return Promise.resolve(client.get({}, optionals))
       .then((doc) => {
-        console.log('mocked doc', doc);
         sinon.stub(client, 'get').returns(Promise.resolve(doc));
       })
       .then(() => {
