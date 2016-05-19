@@ -20,7 +20,7 @@ export default class Job extends events.EventEmitter {
     this.index = index;
     this.jobtype = type;
     this.payload = payload;
-    this.created_by = options.created_by || null;
+    this.created_by = options.created_by || false;
     this.timeout = options.timeout || 10000;
     this.maxAttempts = options.max_attempts || 3;
     this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
