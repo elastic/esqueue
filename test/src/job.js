@@ -14,7 +14,7 @@ const Job = module;
 const maxPriority = 20;
 const minPriority = -20;
 const defaultPriority = 10;
-const defaultCreatedBy = null;
+const defaultCreatedBy = false;
 
 describe('Job Class', function () {
   let client;
