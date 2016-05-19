@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.5.0
+
+- [BREAKING] Change default `created_by` value to `false` (formerly `null`)
+
 ## v0.4.1
 
 - Use `filter` instead of `must` to query for outstanding jobs
