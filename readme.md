@@ -61,6 +61,7 @@ timeout | `10000` | Timeout for the job, if different than the timeout configure
 max_attempts | `3` | Number of times to re-trying assigning the job to a worker before giving up and failing.
 priority | `0` | Used to move jobs up the queue. Uses nice values from `-20` to `20`.
 created_by | null | Used to filter job documents by a creator identifier; meant to be consumed by external applications.
+client | | Alternative elasticsearch client instance, if you need to use one other than what the queue was created with.
 
 ### Creating a worker
 
@@ -105,6 +106,7 @@ Option | Default | Description
 ------ | ----------- | -------
 interval | `1500` | Time, in `ms` to poll for new jobs in the queue.
 size | `10` | Number of records to return when polling for new jobs. Higher values may result in less Elasticsearch requests, but may also take longer to execute. A bit of tuning based on the number of workers you have my be required here.
+client | | Alternative elasticsearch client instance, if you need to use one other than what the queue was created with.
 
 The worker's `output` can either be the raw output from the job, or on object that specifies the output's content type.
 
