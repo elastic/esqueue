@@ -74,6 +74,14 @@ describe('Worker class', function () {
 
       expect(worker.id).to.not.equal(worker2.id);
     });
+
+    it('should use custom client', function () {
+      const newClient = new elasticsearchMock.Client();
+      const worker = new Worker(mockQueue, 'test', noop, { client: newClient });
+      expect(worker).to.have.property('queue', mockQueue);
+      expect(worker).to.have.property('client', newClient);
+      expect(worker.client).to.not.equal(client);
+    });
   });
 
   describe('output formatting', function () {
