@@ -28,25 +28,29 @@ export default class Job extends events.EventEmitter {
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
+    const indexParams = {
+      index: this.index,
+      type: this.doctype,
+      id: this.id,
+      body: {
+        jobtype: this.jobtype,
+        payload: this.payload,
+        priority: this.priority,
+        created_by: this.created_by,
+        timeout: this.timeout,
+        process_expiration: new Date(0), // use epoch so the job query works
+        created_at: new Date(),
+        attempts: 0,
+        max_attempts: this.maxAttempts,
+        status: contstants.JOB_STATUS_PENDING,
+      }
+    };
+
+    if (options.headers) indexParams.headers = options.headers;
+
     this.ready = createIndex(this.client, this.index, this.doctype)
     .then(() => {
-      return this.client.index({
-        index: this.index,
-        type: this.doctype,
-        id: this.id,
-        body: {
-          jobtype: this.jobtype,
-          payload: this.payload,
-          priority: this.priority,
-          created_by: this.created_by,
-          timeout: this.timeout,
-          process_expiration: new Date(0), // use epoch so the job query works
-          created_at: new Date(),
-          attempts: 0,
-          max_attempts: this.maxAttempts,
-          status: contstants.JOB_STATUS_PENDING,
-        }
-      })
+      return this.client.index(indexParams)
       .then((doc) => {
         this.document = {
           id: doc._id,
