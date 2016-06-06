@@ -109,19 +109,27 @@ size | `10` | Number of records to return when polling for new jobs. Higher valu
 The worker's `output` can either be the raw output from the job, or on object that specifies the output's content type.
 
 ```js
-var workerFn1 = function (payload, cb) {
+var workerFn1 = function (payload) {
   // Do some work, using the payload if required
   var output = new Date().toString();
-  cb(null, output);
+  return output;
 };
 
-var workerFn2 = function (payload, cb) {
+var workerFn2 = function (payload) {
   // Do some work, using the payload if required
   var output = {
     content_type: 'text/plain',
     content: new Date().toString();
   };
-  cb(null, output);
+  return output;
+};
+
+var asyncWorker = function (payload) {
+  // Do some work, using the payload if required
+  return Promise.resolve({
+    content_type: 'text/plain',
+    content: new Date().toString();
+  })
 };
 
 ```
