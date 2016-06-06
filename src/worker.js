@@ -17,7 +17,7 @@ export default class Job extends events.EventEmitter {
 
     this.id = puid.generate();
     this.queue = queue;
-    this.client = this.queue.client;
+    this.client = opts.client || this.queue.client;
     this.jobtype = type;
     this.workerFn = workerFn;
     this.checkInterval = opts.interval || 1500;
