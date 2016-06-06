@@ -49,17 +49,15 @@ export default class Job extends events.EventEmitter {
     if (options.headers) indexParams.headers = options.headers;
 
     this.ready = createIndex(this.client, this.index, this.doctype)
-    .then(() => {
-      return this.client.index(indexParams)
-      .then((doc) => {
-        this.document = {
-          id: doc._id,
-          type: doc._type,
-          version: doc._version,
-        };
-        this.debug(`Job created in index ${this.index}`);
-        this.emit('created', this.document);
-      });
+    .then(() => this.client.index(indexParams))
+    .then((doc) => {
+      this.document = {
+        id: doc._id,
+        type: doc._type,
+        version: doc._version,
+      };
+      this.debug(`Job created in index ${this.index}`);
+      this.emit('created', this.document);
     })
     .catch((err) => {
       this.debug('Job creation failed', err);
