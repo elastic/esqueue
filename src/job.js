@@ -28,7 +28,7 @@ export default class Job extends events.EventEmitter {
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
-    this.ready = createIndex(client, index, this.doctype)
+    this.ready = createIndex(this.client, this.index, this.doctype)
     .then(() => {
       return this.client.index({
         index: this.index,

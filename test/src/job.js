@@ -3,7 +3,7 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import { JOB_STATUS_PENDING, DEFAULT_SETTING_DOCTYPE } from '../../lib/helpers/constants';
+import contstants from '../../lib/helpers/constants';
 
 const createIndexMock = sinon.stub().returns(Promise.resolve('mock'));
 const module = proxyquire.noPreserveCache()('../../lib/job', {
@@ -74,7 +74,7 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc).to.have.property('index', index);
-        expect(newDoc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
+        expect(newDoc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
         expect(newDoc).to.have.property('body');
         expect(newDoc.body).to.have.property('payload', payload);
       });
@@ -85,12 +85,11 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc).to.have.property('index', index);
-        expect(newDoc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
+        expect(newDoc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
         expect(newDoc).to.have.property('body');
         expect(newDoc.body).to.have.property('jobtype', type);
       });
     });
-
 
     it('should index the created_by value', function () {
       const createdBy = 'user_identifier';
@@ -148,7 +147,7 @@ describe('Job Class', function () {
       const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('status', JOB_STATUS_PENDING);
+        expect(newDoc.body).to.have.property('status', contstants.JOB_STATUS_PENDING);
       });
     });
 
@@ -156,6 +155,10 @@ describe('Job Class', function () {
       const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
         sinon.assert.calledOnce(createIndexMock);
+        const args = createIndexMock.getCall(0).args;
+        expect(args[0]).to.equal(client);
+        expect(args[1]).to.equal(index);
+        expect(args[2]).to.equal(contstants.DEFAULT_SETTING_DOCTYPE);
       });
     });
 
@@ -180,6 +183,42 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const newDoc = validateDoc(client.index);
         expect(newDoc.body).to.have.property('priority', minPriority);
+      });
+    });
+  });
+
+  describe('custom client', function () {
+    let newClient;
+    let job;
+
+    beforeEach(function () {
+      sinon.spy(client, 'index');
+
+      newClient = new elasticsearchMock.Client();
+      sinon.spy(newClient, 'index');
+      job = new Job(client, index, type, payload, Object.assign({ client: newClient }, options));
+    });
+
+    it('should create the target index', function () {
+      return job.ready.then(() => {
+        sinon.assert.calledOnce(createIndexMock);
+        const args = createIndexMock.getCall(0).args;
+        expect(args[0]).to.equal(newClient);
+        expect(args[1]).to.equal(index);
+        expect(args[2]).to.equal(contstants.DEFAULT_SETTING_DOCTYPE);
+      });
+    });
+
+    it('should index the payload', function () {
+      return job.ready.then(() => {
+        sinon.assert.callCount(client.index, 0);
+        sinon.assert.callCount(newClient.index, 1);
+
+        const newDoc = newClient.index.getCall(0).args[0];
+        expect(newDoc).to.have.property('index', index);
+        expect(newDoc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
+        expect(newDoc).to.have.property('body');
+        expect(newDoc.body).to.have.property('payload', payload);
       });
     });
   });
@@ -247,7 +286,7 @@ describe('Job Class', function () {
 
       const doc = job.toJSON();
       expect(doc).to.have.property('index', index);
-      expect(doc).to.have.property('type', DEFAULT_SETTING_DOCTYPE);
+      expect(doc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
       expect(doc).to.have.property('jobtype', type);
       expect(doc).to.have.property('created_by', defaultCreatedBy);
       expect(doc).to.have.property('timeout', options.timeout);
