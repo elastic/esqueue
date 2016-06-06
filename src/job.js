@@ -15,7 +15,7 @@ export default class Job extends events.EventEmitter {
 
     super();
 
-    this.client = client;
+    this.client = options.client || client;
     this.id = puid.generate();
     this.index = index;
     this.jobtype = type;
