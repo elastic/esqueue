@@ -136,7 +136,7 @@ var asyncWorker = function (payload) {
 
 ```
 
-Both are valid, but the `workerFn2` is likely to be more useful when retrieving the output, as the application doesn't need to know or make assumptions about the type of content the worker returned.
+All of the above are valid. `workerFn2` and `asyncWorker` are likely to be more useful when retrieving the output, as the application doesn't need to know or make assumptions about the type of content the worker returned. Note that returning a Promise is all that's required for an async result in the worker functions.
 
 ## Scaling the queue
 
