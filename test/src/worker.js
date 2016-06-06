@@ -51,6 +51,20 @@ describe('Worker class', function () {
   });
 
   describe('construction', function () {
+    it('should assign internal properties', function () {
+      const jobtype = 'testjob';
+      const workerFn = noop;
+      const worker = new Worker(mockQueue, jobtype, workerFn);
+      expect(worker).to.have.property('id');
+      expect(worker).to.have.property('queue', mockQueue);
+      expect(worker).to.have.property('client', client);
+      expect(worker).to.have.property('jobtype', jobtype);
+      expect(worker).to.have.property('workerFn', workerFn);
+      expect(worker).to.have.property('checkInterval');
+      expect(worker).to.have.property('checkSize');
+      expect(worker).to.have.property('doctype');
+    });
+
     it('should have a unique ID', function () {
       const worker = new Worker(mockQueue, 'test', noop);
       expect(worker.id).to.be.a('string');
