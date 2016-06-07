@@ -16,6 +16,12 @@ const minPriority = -20;
 const defaultPriority = 10;
 const defaultCreatedBy = false;
 
+function validateDoc(spy) {
+  sinon.assert.callCount(spy, 1);
+  const spyCall = spy.getCall(0);
+  return spyCall.args[0];
+}
+
 describe('Job Class', function () {
   let client;
   let index;
@@ -53,102 +59,10 @@ describe('Job Class', function () {
   });
 
   describe('construction', function () {
-    function validateDoc(spy) {
-      sinon.assert.callCount(spy, 1);
-      const spyCall = spy.getCall(0);
-      return spyCall.args[0];
-    }
-
     beforeEach(function () {
       type = 'type1';
       payload = { id: '123' };
-      options = {
-        timeout: 4567,
-        max_attempts: 9,
-      };
       sinon.spy(client, 'index');
-    });
-
-    it('should index the payload', function () {
-      const job = new Job(client, index, type, payload);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc).to.have.property('index', index);
-        expect(newDoc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
-        expect(newDoc).to.have.property('body');
-        expect(newDoc.body).to.have.property('payload', payload);
-      });
-    });
-
-    it('should index the job type', function () {
-      const job = new Job(client, index, type, payload);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc).to.have.property('index', index);
-        expect(newDoc).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
-        expect(newDoc).to.have.property('body');
-        expect(newDoc.body).to.have.property('jobtype', type);
-      });
-    });
-
-    it('should index the created_by value', function () {
-      const createdBy = 'user_identifier';
-      const job = new Job(client, index, type, payload, Object.assign({ created_by: createdBy }, options));
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('created_by', createdBy);
-      });
-    });
-
-    it('should index default created_by value', function () {
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('created_by', defaultCreatedBy);
-      });
-    });
-
-    it('should index timeout value from options', function () {
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('timeout', options.timeout);
-      });
-    });
-
-    it('should set event times', function () {
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('created_at');
-      });
-    });
-
-    it('should set an expired process_expiration time', function () {
-      const now = new Date().getTime();
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('process_expiration');
-        expect(newDoc.body.process_expiration.getTime()).to.be.lessThan(now);
-      });
-    });
-
-    it('should set attempt count', function () {
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('attempts', 0);
-        expect(newDoc.body).to.have.property('max_attempts', options.max_attempts);
-      });
-    });
-
-    it('should set status as pending', function () {
-      const job = new Job(client, index, type, payload, options);
-      return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('status', contstants.JOB_STATUS_PENDING);
-      });
     });
 
     it('should create the target index', function () {
@@ -162,27 +76,138 @@ describe('Job Class', function () {
       });
     });
 
+    it('should index the payload', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs).to.have.property('index', index);
+        expect(indexArgs).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
+        expect(indexArgs).to.have.property('body');
+        expect(indexArgs.body).to.have.property('payload', payload);
+      });
+    });
+
+    it('should index the job type', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs).to.have.property('index', index);
+        expect(indexArgs).to.have.property('type', contstants.DEFAULT_SETTING_DOCTYPE);
+        expect(indexArgs).to.have.property('body');
+        expect(indexArgs.body).to.have.property('jobtype', type);
+      });
+    });
+
+    it('should set event creation time', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('created_at');
+      });
+    });
+
+  });
+
+  describe('default values', function () {
+    beforeEach(function () {
+      type = 'type1';
+      payload = { id: '123' };
+      sinon.spy(client, 'index');
+    });
+
+    it('should set attempt count to 0', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('attempts', 0);
+      });
+    });
+
+    it('should index default created_by value', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('created_by', defaultCreatedBy);
+      });
+    });
+
+    it('should set an expired process_expiration time', function () {
+      const now = new Date().getTime();
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('process_expiration');
+        expect(indexArgs.body.process_expiration.getTime()).to.be.lessThan(now);
+      });
+    });
+
+    it('should set status as pending', function () {
+      const job = new Job(client, index, type, payload);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('status', contstants.JOB_STATUS_PENDING);
+      });
+    });
+
     it('should have a default priority of 10', function () {
       const job = new Job(client, index, type, payload, options);
       return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('priority', defaultPriority);
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('priority', defaultPriority);
+      });
+    });
+
+  });
+
+  describe('option passing', function () {
+    beforeEach(function () {
+      type = 'type1';
+      payload = { id: '123' };
+      options = {
+        timeout: 4567,
+        max_attempts: 9,
+      };
+      sinon.spy(client, 'index');
+    });
+
+    it('should index the created_by value', function () {
+      const createdBy = 'user_identifier';
+      const job = new Job(client, index, type, payload, Object.assign({ created_by: createdBy }, options));
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('created_by', createdBy);
+      });
+    });
+
+    it('should index timeout value from options', function () {
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('timeout', options.timeout);
+      });
+    });
+
+    it('should set max attempt count', function () {
+      const job = new Job(client, index, type, payload, options);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('max_attempts', options.max_attempts);
       });
     });
 
     it(`should use upper priority of ${maxPriority}`, function () {
       const job = new Job(client, index, type, payload, { priority: maxPriority * 2 });
       return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('priority', maxPriority);
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('priority', maxPriority);
       });
     });
 
     it(`should use lower priority of ${minPriority}`, function () {
       const job = new Job(client, index, type, payload, { priority: minPriority * 2 });
       return job.ready.then(() => {
-        const newDoc = validateDoc(client.index);
-        expect(newDoc.body).to.have.property('priority', minPriority);
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs.body).to.have.property('priority', minPriority);
       });
     });
   });
