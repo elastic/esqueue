@@ -62,7 +62,6 @@ export default class Job extends events.EventEmitter {
     .catch((err) => {
       this.debug('Job creation failed', err);
       this.emit('error', err);
-      throw err;
     });
   }
 
