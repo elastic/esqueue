@@ -270,12 +270,6 @@ export default class Job extends events.EventEmitter {
 
       this.debug('job querying failed', err);
       this.emit('error', err);
-      this.queue.emit('worker_error', {
-        id: this.id,
-        type: this.type,
-        err
-      });
-      throw err;
     });
   }
 }
