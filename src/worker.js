@@ -67,6 +67,7 @@ export default class Job extends events.EventEmitter {
       return updatedJob;
     })
     .catch((err) => {
+      if (err.statusCode === 409) return true;
       this.debug(`_claimJob failed on job ${job._id}`, err);
       this.emit('claim_error', err);
       return false;
@@ -95,9 +96,9 @@ export default class Job extends events.EventEmitter {
     })
     .then(() => true)
     .catch((err) => {
+      if (err.statusCode === 409) return true;
       this.debug(`_failJob failed on job ${job._id}`, err);
       this.emit('fail_error', err);
-      if (err.statusCode === 409) return true;
       return false;
     });
   }
