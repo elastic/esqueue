@@ -69,12 +69,11 @@ describe('Create Index', function () {
 
   describe('Does exist', function () {
     let client;
-    let existsStub;
     let createSpy;
 
     beforeEach(function () {
       client = new elasticsearchMock.Client();
-      existsStub = sinon.stub(client.indices, 'exists', () => Promise.resolve(true));
+      sinon.stub(client.indices, 'exists', () => Promise.resolve(true));
       createSpy = sinon.spy(client.indices, 'create');
     });
 
