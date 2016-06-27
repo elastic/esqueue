@@ -67,8 +67,9 @@ export default class Job extends events.EventEmitter {
       return updatedJob;
     })
     .catch((err) => {
-      if (err.statusCode === 409) return false;
-      throw err;
+      this.debug(`_claimJob failed on job ${job._id}`, err);
+      this.emit('claim_error', err);
+      return false;
     });
   }
 
@@ -92,9 +93,12 @@ export default class Job extends events.EventEmitter {
       version: job._version,
       body: { doc }
     })
+    .then(() => true)
     .catch((err) => {
+      this.debug(`_failJob failed on job ${job._id}`, err);
+      this.emit('fail_error', err);
       if (err.statusCode === 409) return true;
-      throw err;
+      return false;
     });
   }
 
@@ -185,6 +189,7 @@ export default class Job extends events.EventEmitter {
     this._stopJobPolling();
     let claimed = false;
 
+    // claim a single job, stopping after first successful claim
     return jobs.reduce((chain, job) => {
       return chain.then((claimedJob) => {
         // short-circuit the promise chain if a job has been claimed
@@ -199,16 +204,6 @@ export default class Job extends events.EventEmitter {
         });
       });
     }, Promise.resolve())
-    .catch((err) => {
-      this.debug('Failed to claim outstanding jobs', err);
-      this.emit('error', err);
-      this.queue.emit('worker_error', {
-        id: this.id,
-        type: this.type,
-        err
-      });
-      throw err;
-    })
     .then((claimedJob) => {
       if (!claimedJob) {
         this.debug(`All ${jobs.length} jobs already claimed`);
