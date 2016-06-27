@@ -372,11 +372,31 @@ describe('Worker class', function () {
       expect(msg).to.equal(false);
     });
 
-    it('should swallow version mismatch errors', function () {
+    it('should return true on version errors', function () {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
-      return worker._claimJob(job);
+      return worker._claimJob(job)
+      .then((res) => expect(res).to.equal(true));
     });
+
+    it('should return false on other errors', function () {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
+      return worker._claimJob(job)
+      .then((res) => expect(res).to.equal(false));
+    });
+
+    it('should emit on other errors', function (done) {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
+
+      worker.on('claim_error', function (err) {
+        expect(err).to.have.property('statusCode', 401);
+        done();
+      });
+      worker._claimJob(job);
+    });
+
   });
 
   describe('failing a job', function () {
@@ -423,10 +443,29 @@ describe('Worker class', function () {
       expect(doc.output).to.have.property('content', msg);
     });
 
-    it('should swallow version mismatch errors', function () {
+    it('should return true on version mismatch errors', function () {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 409 }));
-      return worker._failJob(job);
+      return worker._failJob(job)
+      .then((res) => expect(res).to.equal(true));
+    });
+
+    it('should return false on other errors', function () {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
+      return worker._failJob(job)
+      .then((res) => expect(res).to.equal(false));
+    });
+
+    it('should emit on other errors', function (done) {
+      mockQueue.client.update.restore();
+      sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
+
+      worker.on('fail_error', function (err) {
+        expect(err).to.have.property('statusCode', 401);
+        done();
+      });
+      worker._failJob(job);
     });
 
     it('should set completed time and status to failed', function () {
