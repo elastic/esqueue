@@ -3,7 +3,7 @@ import Puid from 'puid';
 import moment from 'moment';
 import logger from './helpers/logger';
 import constants from './helpers/constants';
-import { WorkerTimeoutError } from './helpers/errors';
+import { WorkerTimeoutError, UnspecifiedWorkerError } from './helpers/errors';
 
 const puid = new Puid();
 const debug = logger('esqueue:worker');
@@ -173,6 +173,12 @@ export default class Job extends events.EventEmitter {
         this.emit('job_error', err);
       });
     }, (jobErr) => {
+      if (!jobErr) {
+        jobErr = new UnspecifiedWorkerError({
+          jobId: job._id,
+        });
+      }
+
       // job execution failed
       if (jobErr.type === 'WorkerTimeoutError') {
         this.debug(`Timeout on job ${job._id}`);

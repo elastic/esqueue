@@ -9,4 +9,11 @@ errors.WorkerTimeoutError = typedError({
   jobId: null
 });
 
+errors.UnspecifiedWorkerError = typedError({
+  type: 'UnspecifiedWorkerError',
+  message: 'Unspecified worker error',
+  timeout: null,
+  jobId: null
+});
+
 export default errors;
