@@ -22,9 +22,11 @@ const schema = {
   }
 };
 
-export default function createIndex(client, indexName, doctype = defaultSettings.DEFAULT_SETTING_DOCTYPE) {
+export default function createIndex(client, indexName, doctype = defaultSettings.DEFAULT_SETTING_DOCTYPE, settings = {}) {
   const indexBody = { mappings : {} };
   indexBody.mappings[doctype] = { properties: schema };
+
+  const body = Object.assign({}, { settings }, indexBody);
 
   return client.indices.exists({
     index: indexName,
@@ -34,7 +36,7 @@ export default function createIndex(client, indexName, doctype = defaultSettings
       return client.indices.create({
         ignore: 400,
         index: indexName,
-        body: indexBody
+        body: body
       })
       .then(() => true);
     }
