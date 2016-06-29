@@ -500,69 +500,127 @@ describe('Worker class', function () {
       });
     });
 
-    it('should call the workerFn with the payload', function (done) {
-      const workerFn = function (jobPayload) {
-        expect(jobPayload).to.eql(payload);
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
+    describe('worker success', function () {
+      it('should call the workerFn with the payload', function (done) {
+        const workerFn = function (jobPayload) {
+          expect(jobPayload).to.eql(payload);
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
 
-      worker._performJob(job)
-      .then(() => done());
-    });
-
-    it('should update the job with the workerFn output', function () {
-      const workerFn = function (jobPayload) {
-        expect(jobPayload).to.eql(payload);
-        return payload;
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
-
-      return worker._performJob(job)
-      .then(() => {
-        sinon.assert.calledOnce(updateSpy);
-        const query = updateSpy.firstCall.args[0];
-        expect(query).to.have.property('index', job._index);
-        expect(query).to.have.property('type', job._type);
-        expect(query).to.have.property('id', job._id);
-        expect(query).to.have.property('version', job._version);
-        expect(query.body.doc).to.have.property('output');
-        expect(query.body.doc.output).to.have.property('content_type', false);
-        expect(query.body.doc.output).to.have.property('content', payload);
+        worker._performJob(job)
+        .then(() => done());
       });
-    });
 
-    it('should update the job status and completed time', function () {
-      const startTime = moment().valueOf();
-      const workerFn = function (jobPayload) {
-        expect(jobPayload).to.eql(payload);
-        return new Promise(function (resolve) {
-          setTimeout(() => resolve(payload), 10);
+      it('should update the job with the workerFn output', function () {
+        const workerFn = function (jobPayload) {
+          expect(jobPayload).to.eql(payload);
+          return payload;
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+
+        return worker._performJob(job)
+        .then(() => {
+          sinon.assert.calledOnce(updateSpy);
+          const query = updateSpy.firstCall.args[0];
+          expect(query).to.have.property('index', job._index);
+          expect(query).to.have.property('type', job._type);
+          expect(query).to.have.property('id', job._id);
+          expect(query).to.have.property('version', job._version);
+          expect(query.body.doc).to.have.property('output');
+          expect(query.body.doc.output).to.have.property('content_type', false);
+          expect(query.body.doc.output).to.have.property('content', payload);
         });
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
+      });
 
-      worker._performJob(job)
-      .then(() => {
-        sinon.assert.calledOnce(updateSpy);
-        const doc = updateSpy.firstCall.args[0].body.doc;
-        expect(doc).to.have.property('status', constants.JOB_STATUS_COMPLETED);
-        expect(doc).to.have.property('completed_at');
-        const completedTimestamp = moment(doc.completed_at).valueOf();
-        expect(completedTimestamp).to.be.greaterThan(startTime);
+      it('should update the job status and completed time', function () {
+        const startTime = moment().valueOf();
+        const workerFn = function (jobPayload) {
+          expect(jobPayload).to.eql(payload);
+          return new Promise(function (resolve) {
+            setTimeout(() => resolve(payload), 10);
+          });
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+
+        worker._performJob(job)
+        .then(() => {
+          sinon.assert.calledOnce(updateSpy);
+          const doc = updateSpy.firstCall.args[0].body.doc;
+          expect(doc).to.have.property('status', constants.JOB_STATUS_COMPLETED);
+          expect(doc).to.have.property('completed_at');
+          const completedTimestamp = moment(doc.completed_at).valueOf();
+          expect(completedTimestamp).to.be.greaterThan(startTime);
+        });
       });
     });
 
-    it('should append error output to job', function () {
-      const workerFn = function () {
-        throw new Error('test error');
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
-      const failStub = sinon.stub(worker, '_failJob');
+    describe('worker failure', function () {
+      it('should append error output to job', function () {
+        const workerFn = function () {
+          throw new Error('test error');
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+        const failStub = sinon.stub(worker, '_failJob');
 
-      return worker._performJob(job)
-      .then(() => {
-        sinon.assert.calledOnce(failStub);
-        sinon.assert.calledWith(failStub, job, 'Error: test error');
+        return worker._performJob(job)
+        .then(() => {
+          sinon.assert.calledOnce(failStub);
+          sinon.assert.calledWith(failStub, job, 'Error: test error');
+        });
+      });
+
+      it('should handle async errors', function () {
+        const workerFn = function () {
+          return new Promise((resolve, reject) => {
+            reject(new Error('test error'));
+          });
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+        const failStub = sinon.stub(worker, '_failJob');
+
+        return worker._performJob(job)
+        .then(() => {
+          sinon.assert.calledOnce(failStub);
+          sinon.assert.calledWith(failStub, job, 'Error: test error');
+        });
+      });
+
+      it('should handle rejecting with strings', function () {
+        const errorMessage = 'this is a string error';
+        const workerFn = function () {
+          return new Promise((resolve, reject) => {
+            reject(errorMessage);
+          });
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+        const failStub = sinon.stub(worker, '_failJob');
+
+        return worker._performJob(job)
+        .then(() => {
+          sinon.assert.calledOnce(failStub);
+          sinon.assert.calledWith(failStub, job, errorMessage);
+        });
+      });
+
+      it('should handle empty rejection', function (done) {
+        const workerFn = function () {
+          return new Promise((resolve, reject) => {
+            reject();
+          });
+        };
+        const worker = new Worker(mockQueue, 'test', workerFn);
+        const failStub = sinon.stub(worker, '_failJob');
+
+        worker.once('job_error', (err) => {
+          try {
+            expect(err).to.have.property('type', 'UnspecifiedWorkerError');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+
+        worker._performJob(job);
       });
     });
   });
