@@ -567,36 +567,73 @@ describe('Worker class', function () {
     });
   });
 
-  describe('job timeouts', function () {
-    let job;
-    let failStub;
-    let worker;
-    const timeout = 20;
-    const timeoutPadding = 10;
+  describe('job timing', function () {
+    function getFailStub(worker) {
+      return sinon.stub(worker, '_failJob').returns(Promise.resolve());
+    }
 
-    beforeEach(function () {
+    it('should timeout if not complete within allotted time', function (done) {
+      const timeout = 20;
       const workerFn = function () {
         return new Promise(function (resolve) {
           setTimeout(() => {
             resolve();
-          }, timeout + timeoutPadding);
+          }, timeout * 2);
         });
       };
-      worker = new Worker(mockQueue, 'test', workerFn);
-      job = {
-        _id: 'testJob1',
+      const worker = new Worker(mockQueue, 'test', workerFn);
+      const failStub = getFailStub(worker);
+
+      const job = {
+        _id: 'testTimeoutJob',
         _source: {
           timeout: timeout,
           payload: 'test'
         }
       };
-      failStub = sinon.stub(worker, '_failJob').returns(Promise.resolve());
+
+      let performJobPromise;
+
+      // check for timeout event
+      worker.once('job_timeout', (err) => {
+        try {
+          expect(err).to.have.property('type', 'WorkerTimeoutError');
+          performJobPromise.then(() => {
+            sinon.assert.notCalled(failStub);
+            done();
+          }).catch(done);
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      // fire of the job worker
+      performJobPromise = worker._performJob(job);
     });
 
-    it('should fail if not complete within allotted time', function () {
+    it('should fail if worker fails', function () {
+      const timeout = 20;
+      const workerFn = function () {
+        return new Promise(function (resolve, reject) {
+          setTimeout(() => {
+            reject();
+          }, timeout / 2);
+        });
+      };
+      const worker = new Worker(mockQueue, 'test', workerFn);
+      const failStub = getFailStub(worker);
+
+      const job = {
+        _id: 'testTimeoutJob',
+        _source: {
+          timeout: timeout,
+          payload: 'test'
+        }
+      };
+
       return worker._performJob(job)
       .then(() => {
-        sinon.assert.notCalled(failStub);
+        sinon.assert.calledOnce(failStub);
       });
     });
   });
