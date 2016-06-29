@@ -188,7 +188,7 @@ export default class Job extends events.EventEmitter {
 
       this.debug(`Failure occurred on job ${job._id}`, jobErr);
       this.emit('job_error', jobErr);
-      return this._failJob(job, jobErr.toString());
+      return this._failJob(job, (jobErr.toString) ? jobErr.toString() : false);
     });
   }
 
