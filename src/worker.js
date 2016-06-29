@@ -123,9 +123,22 @@ export default class Job extends events.EventEmitter {
     this.debug(`Starting job ${job._id}`);
 
     const workerOutput = new Promise((resolve, reject) => {
-      resolve(this.workerFn.call(null, job._source.payload));
+      // run the worker's workerFn
+      let isResolved = false;
+      Promise.resolve(this.workerFn.call(null, job._source.payload))
+      .then((res) => {
+        isResolved = true;
+        resolve(res);
+      })
+      .catch((err) => {
+        isResolved = true;
+        reject(err);
+      });
 
+      // fail if workerFn doesn't finish before timeout
       setTimeout(() => {
+        if (isResolved) return;
+
         this.debug(`Timeout processing job ${job._id}`);
         reject(new WorkerTimeoutError({
           timeout: job._source.timeout,
