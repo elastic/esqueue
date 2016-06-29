@@ -174,7 +174,7 @@ export default class Job extends events.EventEmitter {
       });
     }, (jobErr) => {
       // job execution failed
-      if (jobErr.type === 'WorkerTimeout') {
+      if (jobErr.type === 'WorkerTimeoutError') {
         this.debug(`Timeout on job ${job._id}`);
         this.emit('job_timeout', jobErr);
         return;
