@@ -27,7 +27,7 @@ export default class Job extends events.EventEmitter {
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
     this._checker = false;
-    this.debug(`Created worker for type ${this.type}`);
+    this.debug(`Created worker for job type ${this.jobtype}`);
     this._startJobPolling();
   }
 
