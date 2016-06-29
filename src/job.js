@@ -25,6 +25,7 @@ export default class Job extends events.EventEmitter {
     this.maxAttempts = options.max_attempts || 3;
     this.priority = Math.max(Math.min(options.priority || 10, 20), -20);
     this.doctype = options.doctype || contstants.DEFAULT_SETTING_DOCTYPE;
+    this.indexSettings = options.indexSettings || {};
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
@@ -48,7 +49,7 @@ export default class Job extends events.EventEmitter {
 
     if (options.headers) indexParams.headers = options.headers;
 
-    this.ready = createIndex(this.client, this.index, this.doctype)
+    this.ready = createIndex(this.client, this.index, this.doctype, this.indexSettings)
     .then(() => this.client.index(indexParams))
     .then((doc) => {
       this.document = {

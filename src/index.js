@@ -45,7 +45,8 @@ export default class Esqueue extends events.EventEmitter {
     };
 
     const options = Object.assign(defaults, opts, {
-      doctype: this.settings.doctype
+      doctype: this.settings.doctype,
+      indexSettings: this.settings.indexSettings,
     });
 
     return new Job(this.client, index, type, payload, options);
