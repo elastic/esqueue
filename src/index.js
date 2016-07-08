@@ -2,7 +2,7 @@ import events from 'events';
 import createClient from './helpers/es_client';
 import indexTimestamp from './helpers/index_timestamp';
 import logger from './helpers/logger';
-import { defaultSettings } from './helpers/constants';
+import constants from './helpers/constants';
 import Job from './job.js';
 import Worker from './worker.js';
 import omit from 'lodash.omit';
@@ -16,14 +16,14 @@ export default class Esqueue extends events.EventEmitter {
     super();
     this.index = index;
     this.settings = Object.assign({
-      interval: defaultSettings.DEFAULT_SETTING_INTERVAL,
-      timeout: defaultSettings.DEFAULT_SETTING_TIMEOUT,
-      doctype: defaultSettings.DEFAULT_SETTING_DOCTYPE,
+      interval: constants.DEFAULT_SETTING_INTERVAL,
+      timeout: constants.DEFAULT_SETTING_TIMEOUT,
+      doctype: constants.DEFAULT_SETTING_DOCTYPE,
     }, omit(options, [ 'client' ]));
     this.client = createClient(options.client || {});
 
     this._workers = [];
-    this._initTasks().catch((err) => this.emit('error', err));
+    this._initTasks().catch((err) => this.emit(constants.EVENT_QUEUE_ERROR, err));
   }
 
   _initTasks() {

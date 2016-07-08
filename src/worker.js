@@ -69,7 +69,7 @@ export default class Job extends events.EventEmitter {
     .catch((err) => {
       if (err.statusCode === 409) return true;
       this.debug(`_claimJob failed on job ${job._id}`, err);
-      this.emit('claim_error', err);
+      this.emit(constants.EVENT_WORKER_JOB_CLAIM_ERROR, err);
       return false;
     });
   }
@@ -97,8 +97,8 @@ export default class Job extends events.EventEmitter {
     .then(() => true)
     .catch((err) => {
       if (err.statusCode === 409) return true;
-      this.debug(`_failJob failed on job ${job._id}`, err);
-      this.emit('fail_error', err);
+      this.debug(`_failJob failed to update job ${job._id}`, err);
+      this.emit(constants.EVENT_WORKER_FAIL_UPDATE_ERROR, err);
       return false;
     });
   }
@@ -170,7 +170,7 @@ export default class Job extends events.EventEmitter {
       .catch((err) => {
         if (err.statusCode === 409) return false;
         this.debug(`Failure saving job output ${job._id}`, err);
-        this.emit('job_error', err);
+        this.emit(constants.EVENT_WORKER_JOB_UPDATE_ERROR, err);
       });
     }, (jobErr) => {
       if (!jobErr) {
@@ -182,12 +182,12 @@ export default class Job extends events.EventEmitter {
       // job execution failed
       if (jobErr.type === 'WorkerTimeoutError') {
         this.debug(`Timeout on job ${job._id}`);
-        this.emit('job_timeout', jobErr);
+        this.emit(constants.EVENT_WORKER_JOB_TIMEOUT_ERROR, jobErr);
         return;
       }
 
       this.debug(`Failure occurred on job ${job._id}`, jobErr);
-      this.emit('job_error', jobErr);
+      this.emit(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, jobErr);
       return this._failJob(job, (jobErr.toString) ? jobErr.toString() : false);
     });
   }
@@ -235,7 +235,6 @@ export default class Job extends events.EventEmitter {
     .then(() => this._startJobPolling())
     .catch((err) => {
       this.debug('Error claiming jobs', err);
-      this.emit('error', err);
       this._startJobPolling();
     });
   }
@@ -289,7 +288,7 @@ export default class Job extends events.EventEmitter {
       if (err.status === 404) return [];
 
       this.debug('job querying failed', err);
-      this.emit('error', err);
+      this.emit(constants.EVENT_WORKER_JOB_SEARCH_ERROR, err);
     });
   }
 }
