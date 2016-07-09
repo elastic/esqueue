@@ -2,6 +2,13 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.10.0
+
+- [BREAKING] Remove header passing on job creation
+- Expose event names in constants
+- Emit on success conditions as well as errors
+- Also emit on the Queue instance
+
 ## v0.9.0
 
 - [BREAKING] Rename timeout error event
