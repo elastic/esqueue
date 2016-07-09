@@ -564,6 +564,27 @@ describe('Worker class', function () {
           expect(completedTimestamp).to.be.greaterThan(startTime);
         });
       });
+
+      it('should emit completion event', function (done) {
+        const worker = new Worker(mockQueue, 'test', noop);
+
+        worker.once(constants.EVENT_WORKER_COMPLETE, (workerJob) => {
+          try {
+            expect(workerJob).to.have.property('id');
+            expect(workerJob).to.have.property('index');
+            expect(workerJob).to.have.property('type');
+            expect(workerJob).to.have.property('output');
+            expect(workerJob.output).to.have.property('content');
+            expect(workerJob.output).to.have.property('content_type');
+            expect(workerJob).to.not.have.property('_source');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+
+        worker._performJob(job);
+      });
     });
 
     describe('worker failure', function () {

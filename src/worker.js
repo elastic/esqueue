@@ -195,6 +195,7 @@ export default class Job extends events.EventEmitter {
         version: job._version,
         body: { doc }
       })
+      .then(() => this.emit(constants.EVENT_WORKER_COMPLETE, Object.assign(emitJob, { output: docOutput })))
       .catch((err) => {
         if (err.statusCode === 409) return false;
         this.debug(`Failure saving job output ${job._id}`, err);
