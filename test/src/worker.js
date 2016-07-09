@@ -289,7 +289,6 @@ describe('Worker class', function () {
     });
   });
 
-
   describe('claiming a job', function () {
     let params;
     let job;
@@ -391,12 +390,18 @@ describe('Worker class', function () {
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
 
       worker.on(constants.EVENT_WORKER_JOB_CLAIM_ERROR, function (err) {
-        expect(err).to.have.property('statusCode', 401);
-        done();
+        try {
+          expect(err).to.have.property('error');
+          expect(err).to.have.property('job');
+          expect(err).to.have.property('worker');
+          expect(err.error).to.have.property('statusCode', 401);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       worker._claimJob(job);
     });
-
   });
 
   describe('failing a job', function () {
@@ -462,8 +467,15 @@ describe('Worker class', function () {
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
 
       worker.on(constants.EVENT_WORKER_FAIL_UPDATE_ERROR, function (err) {
-        expect(err).to.have.property('statusCode', 401);
-        done();
+        try {
+          expect(err).to.have.property('error');
+          expect(err).to.have.property('job');
+          expect(err).to.have.property('worker');
+          expect(err.error).to.have.property('statusCode', 401);
+          done();
+        } catch (e) {
+          done(e);
+        }
       });
       worker._failJob(job);
     });
@@ -612,7 +624,10 @@ describe('Worker class', function () {
 
         worker.once(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
           try {
-            expect(err).to.have.property('type', 'UnspecifiedWorkerError');
+            expect(err).to.have.property('error');
+            expect(err).to.have.property('job');
+            expect(err).to.have.property('worker');
+            expect(err.error).to.have.property('type', 'UnspecifiedWorkerError');
             done();
           } catch (e) {
             done(e);
@@ -654,7 +669,10 @@ describe('Worker class', function () {
       // check for timeout event
       worker.once(constants.EVENT_WORKER_JOB_TIMEOUT_ERROR, (err) => {
         try {
-          expect(err).to.have.property('type', 'WorkerTimeoutError');
+          expect(err).to.have.property('error');
+          expect(err).to.have.property('job');
+          expect(err).to.have.property('worker');
+          expect(err.error).to.have.property('type', 'WorkerTimeoutError');
           performJobPromise.then(() => {
             sinon.assert.notCalled(failStub);
             done();
