@@ -210,15 +210,6 @@ describe('Job Class', function () {
         expect(indexArgs.body).to.have.property('priority', minPriority);
       });
     });
-
-    it('should pass headers to the client', function () {
-      const headers = { authorization: 'Basic dXNlcjpwYXNzd29yZA==' };
-      const job = new Job(client, index, type, payload, Object.assign(options, { headers }));
-      return job.ready.then(() => {
-        const indexArgs = validateDoc(client.index);
-        expect(indexArgs).to.have.property('headers', headers);
-      });
-    });
   });
 
   describe('custom client', function () {
