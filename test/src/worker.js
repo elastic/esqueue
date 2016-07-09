@@ -2,8 +2,9 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import moment from 'moment';
 import { noop, random, get, find } from 'lodash';
-import Worker from '../../lib/worker';
 import elasticsearchMock from '../fixtures/elasticsearch';
+import QueueMock from '../fixtures/queue';
+import Worker from '../../lib/worker';
 import constants from '../../lib/helpers/constants';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
@@ -23,9 +24,8 @@ describe('Worker class', function () {
 
   beforeEach(function () {
     client = new elasticsearchMock.Client();
-    mockQueue = {
-      client: client
-    };
+    mockQueue = new QueueMock();
+    mockQueue.setClient(client);
   });
 
   describe('invalid construction', function () {
@@ -81,6 +81,37 @@ describe('Worker class', function () {
       expect(worker).to.have.property('queue', mockQueue);
       expect(worker).to.have.property('client', newClient);
       expect(worker.client).to.not.equal(client);
+    });
+  });
+
+  describe('event emitting', function () {
+    let worker;
+
+    beforeEach(function () {
+      worker = new Worker(mockQueue, 'test', noop);
+    });
+
+    it('should trigger events on the queue instance', function (done) {
+      const eventName = 'test event';
+      const payload1 = {
+        test: true,
+        deep: { object: 'ok' }
+      };
+      const payload2 = 'two';
+      const payload3 = new Error('test error');
+
+      mockQueue.on(eventName, (...args) => {
+        try {
+          expect(args[0]).to.equal(payload1);
+          expect(args[1]).to.equal(payload2);
+          expect(args[2]).to.equal(payload3);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      worker.emit(eventName, payload1, payload2, payload3);
     });
   });
 
