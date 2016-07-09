@@ -52,6 +52,11 @@ export default class Job extends events.EventEmitter {
     };
   }
 
+  emit(name, ...args) {
+    super.emit(name, ...args);
+    this.queue.emit(name, ...args);
+  }
+
   _formatErrorParams(err, job) {
     const response = {
       error: err,
