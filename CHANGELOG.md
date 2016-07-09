@@ -2,6 +2,32 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.9.0
+
+- [BREAKING] Rename timeout error event
+- Fix worker timeout condition
+- Fix issue where a worker error was not an instance of Error, or lacked a `toString()` method
+- Allow specifying option to pass to elasticsearch client on index creation 
+
+## v0.8.0
+
+- [BREAKING] Don't throw on worker failures
+- [BREAKING] Don't emit errors on queue instance
+
+## v0.7.0
+
+- [BREAKING] Don't throw on job creation failures
+
+## v0.6.1
+
+- Allow headers option on job creation, passed to elasticsearch index request
+
+## v0.6.0
+
+- Allow client instance to be passed when creating a job
+- Allow client instance to be passed when creating a worker
+- Prefer any 4.x version of node for development
+
 ## v0.5.0
 
 - [BREAKING] Change default `created_by` value to `false` (formerly `null`)
