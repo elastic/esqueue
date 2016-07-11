@@ -133,7 +133,7 @@ describe('Job Class', function () {
       createIndexMock.returns(Promise.reject(new Error(errMsg)));
       const job = new Job(mockQueue, index, type, payload);
 
-      job.once(contstants.EVENT_JOB_ERROR, (err) => {
+      job.once(contstants.EVENT_JOB_CREATE_ERROR, (err) => {
         try {
           expect(err.message).to.equal(errMsg);
           done();
@@ -150,7 +150,7 @@ describe('Job Class', function () {
       sinon.stub(client, 'index', () => Promise.reject(new Error(errMsg)));
       const job = new Job(mockQueue, index, type, payload);
 
-      job.once(contstants.EVENT_JOB_ERROR, (err) => {
+      job.once(contstants.EVENT_JOB_CREATE_ERROR, (err) => {
         try {
           expect(err.message).to.equal(errMsg);
           done();
