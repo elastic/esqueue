@@ -53,6 +53,7 @@ export default class Job extends events.EventEmitter {
       this.document = {
         id: doc._id,
         type: doc._type,
+        index: doc._index,
         version: doc._version,
       };
       this.debug(`Job created in index ${this.index}`);
