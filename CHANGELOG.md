@@ -5,9 +5,10 @@ Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes wh
 ## v0.10.0
 
 - [BREAKING] Remove header passing on job creation
+- [BREAKING] Job instantiation requires full queue instance
 - Expose event names in constants
-- Emit on success conditions as well as errors
-- Also emit on the Queue instance
+- Emit on Worker success conditions as well as errors
+- Worker and Job emits on the Queue instance
 
 ## v0.9.0
 
