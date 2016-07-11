@@ -9,13 +9,14 @@ const debug = logger('esqueue:job');
 const puid = new Puid();
 
 export default class Job extends events.EventEmitter {
-  constructor(client, index, type, payload, options = {}) {
+  constructor(queue, index, type, payload, options = {}) {
     if (typeof type !== 'string') throw new Error('Type must be a string');
     if (!isPlainObject(payload)) throw new Error('Payload must be a plain object');
 
     super();
 
-    this.client = options.client || client;
+    this.queue = queue;
+    this.client = options.client || this.queue.client;
     this.id = puid.generate();
     this.index = index;
     this.jobtype = type;

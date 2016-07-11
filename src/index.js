@@ -49,7 +49,7 @@ export default class Esqueue extends events.EventEmitter {
       indexSettings: this.settings.indexSettings,
     });
 
-    return new Job(this.client, index, type, payload, options);
+    return new Job(this, index, type, payload, options);
   }
 
   registerWorker(type, workerFn, opts) {
