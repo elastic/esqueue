@@ -66,6 +66,11 @@ export default class Job extends events.EventEmitter {
     });
   }
 
+  emit(name, ...args) {
+    super.emit(name, ...args);
+    this.queue.emit(name, ...args);
+  }
+
   get() {
     return this.ready
     .then(() => {
