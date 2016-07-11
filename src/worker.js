@@ -183,10 +183,10 @@ export default class Job extends events.EventEmitter {
       // job execution was successful
       this.debug(`Completed job ${job._id}`);
 
-      const emitJob = formatJobObject(job);
       const completedTime = moment().toISOString();
       const docOutput = this._formatOutput(output);
 
+      const emitJob = { job: formatJobObject(job) };
       const doc = {
         status: constants.JOB_STATUS_COMPLETED,
         completed_at: completedTime,

@@ -601,13 +601,17 @@ describe('Worker class', function () {
 
         worker.once(constants.EVENT_WORKER_COMPLETE, (workerJob) => {
           try {
-            expect(workerJob).to.have.property('id');
-            expect(workerJob).to.have.property('index');
-            expect(workerJob).to.have.property('type');
+            expect(workerJob).to.not.have.property('_source');
+
+            expect(workerJob).to.have.property('job');
+            expect(workerJob.job).to.have.property('id');
+            expect(workerJob.job).to.have.property('index');
+            expect(workerJob.job).to.have.property('type');
+
             expect(workerJob).to.have.property('output');
             expect(workerJob.output).to.have.property('content');
             expect(workerJob.output).to.have.property('content_type');
-            expect(workerJob).to.not.have.property('_source');
+
             done();
           } catch (e) {
             done(e);
