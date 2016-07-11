@@ -110,14 +110,12 @@ export default class Job extends events.EventEmitter {
     this.debug(`Failing job ${job._id}`);
 
     const completedTime = moment().toISOString();
+    const docOutput = this._formatOutput(output);
     const doc = {
       status: constants.JOB_STATUS_FAILED,
       completed_at: completedTime,
+      output: docOutput
     };
-
-    if (output) {
-      doc.output = this._formatOutput(output);
-    }
 
     return this.client.update({
       index: job._index,
@@ -126,7 +124,15 @@ export default class Job extends events.EventEmitter {
       version: job._version,
       body: { doc }
     })
-    .then(() => true)
+    .then(() => {
+      const eventOutput = {
+        job: formatJobObject(job),
+        output: docOutput,
+      };
+
+      this.emit(constants.EVENT_WORKER_JOB_FAIL, eventOutput);
+      return true;
+    })
     .catch((err) => {
       if (err.statusCode === 409) return true;
       this.debug(`_failJob failed to update job ${job._id}`, err);
@@ -186,7 +192,6 @@ export default class Job extends events.EventEmitter {
       const completedTime = moment().toISOString();
       const docOutput = this._formatOutput(output);
 
-      const emitJob = { job: formatJobObject(job) };
       const doc = {
         status: constants.JOB_STATUS_COMPLETED,
         completed_at: completedTime,
@@ -200,7 +205,14 @@ export default class Job extends events.EventEmitter {
         version: job._version,
         body: { doc }
       })
-      .then(() => this.emit(constants.EVENT_WORKER_COMPLETE, Object.assign(emitJob, { output: docOutput })))
+      .then(() => {
+        const eventOutput = {
+          job: formatJobObject(job),
+          output: docOutput,
+        };
+
+        this.emit(constants.EVENT_WORKER_COMPLETE, eventOutput)
+      })
       .catch((err) => {
         if (err.statusCode === 409) return false;
         this.debug(`Failure saving job output ${job._id}`, err);
