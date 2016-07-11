@@ -212,7 +212,7 @@ export default class Job extends events.EventEmitter {
           output: docOutput,
         };
 
-        this.emit(constants.EVENT_WORKER_COMPLETE, eventOutput)
+        this.emit(constants.EVENT_WORKER_COMPLETE, eventOutput);
       })
       .catch((err) => {
         if (err.statusCode === 409) return false;
@@ -229,7 +229,7 @@ export default class Job extends events.EventEmitter {
       // job execution failed
       if (jobErr.type === 'WorkerTimeoutError') {
         this.debug(`Timeout on job ${job._id}`);
-        this.emit(constants.EVENT_WORKER_JOB_TIMEOUT_ERROR, this._formatErrorParams(jobErr, job));
+        this.emit(constants.EVENT_WORKER_JOB_TIMEOUT, this._formatErrorParams(jobErr, job));
         return;
       }
 

@@ -738,7 +738,7 @@ describe('Worker class', function () {
       let performJobPromise;
 
       // check for timeout event
-      worker.once(constants.EVENT_WORKER_JOB_TIMEOUT_ERROR, (err) => {
+      worker.once(constants.EVENT_WORKER_JOB_TIMEOUT, (err) => {
         try {
           expect(err).to.have.property('error');
           expect(err).to.have.property('job');

@@ -10,5 +10,5 @@ export default {
   EVENT_WORKER_JOB_FAIL: 'worker:job failed',
   EVENT_WORKER_JOB_FAIL_ERROR: 'worker:failed job update error',
   EVENT_WORKER_JOB_EXECUTION_ERROR: 'worker:job execution error',
-  EVENT_WORKER_JOB_TIMEOUT_ERROR: 'worker:job timeout',
+  EVENT_WORKER_JOB_TIMEOUT: 'worker:job timeout',
 };
