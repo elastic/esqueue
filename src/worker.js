@@ -127,6 +127,7 @@ export default class Job extends events.EventEmitter {
     .then(() => {
       const eventOutput = {
         job: formatJobObject(job),
+        worker: this.toJSON(),
         output: docOutput,
       };
 

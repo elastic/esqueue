@@ -486,14 +486,43 @@ describe('Worker class', function () {
       .then((res) => expect(res).to.equal(true));
     });
 
-    it('should return false on other errors', function () {
+    it('should return false on other docuemnt update errors', function () {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
       return worker._failJob(job)
       .then((res) => expect(res).to.equal(false));
     });
 
-    it('should emit on other errors', function (done) {
+    it('should set completed time and status to failure', function () {
+      const startTime = moment().valueOf();
+      const msg = 'test message';
+      clock.tick(100);
+
+      worker._failJob(job, msg);
+      const doc = updateSpy.firstCall.args[0].body.doc;
+      expect(doc).to.have.property('output');
+      expect(doc).to.have.property('status', constants.JOB_STATUS_FAILED);
+      expect(doc).to.have.property('completed_at');
+      const completedTimestamp = moment(doc.completed_at).valueOf();
+      expect(completedTimestamp).to.be.greaterThan(startTime);
+    });
+
+    it('should emit worker failure event', function (done) {
+      worker.on(constants.EVENT_WORKER_JOB_FAIL, (err) => {
+        try {
+          expect(err).to.have.property('output');
+          expect(err).to.have.property('job');
+          expect(err).to.have.property('worker');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      return worker._failJob(job);
+    });
+
+    it('should emit on other docuemnt update errors', function (done) {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
 
@@ -509,20 +538,6 @@ describe('Worker class', function () {
         }
       });
       worker._failJob(job);
-    });
-
-    it('should set completed time and status to failed', function () {
-      const startTime = moment().valueOf();
-      const msg = 'test message';
-      clock.tick(100);
-
-      worker._failJob(job, msg);
-      const doc = updateSpy.firstCall.args[0].body.doc;
-      expect(doc).to.have.property('output');
-      expect(doc).to.have.property('status', constants.JOB_STATUS_FAILED);
-      expect(doc).to.have.property('completed_at');
-      const completedTimestamp = moment(doc.completed_at).valueOf();
-      expect(completedTimestamp).to.be.greaterThan(startTime);
     });
   });
 
