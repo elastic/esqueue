@@ -3,7 +3,7 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import proxyquire from 'proxyquire';
 import elasticsearchMock from '../fixtures/elasticsearch';
-import contstants from '../../lib/helpers/constants';
+import contstants from '../../lib/constants';
 
 const createIndexMock = sinon.stub().returns(Promise.resolve('mock'));
 const module = proxyquire.noPreserveCache()('../../lib/job', {

@@ -1,0 +1,5 @@
+export default {
+  DEFAULT_SETTING_TIMEOUT: 10000,
+  DEFAULT_SETTING_INTERVAL: 'week',
+  DEFAULT_SETTING_DOCTYPE: 'esqueue',
+};

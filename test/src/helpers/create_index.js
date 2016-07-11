@@ -2,7 +2,7 @@ import expect from 'expect.js';
 import sinon from 'sinon';
 import createIndex from '../../../lib/helpers/create_index';
 import elasticsearchMock from '../../fixtures/elasticsearch';
-import { defaultSettings } from '../../../lib/helpers/constants';
+import { DEFAULT_SETTING_DOCTYPE } from '../../../lib/constants';
 
 describe('Create Index', function () {
 
@@ -36,7 +36,7 @@ describe('Create Index', function () {
 
     it('should create the type mappings', function () {
       const indexName = 'test-index';
-      const docType = defaultSettings.DEFAULT_SETTING_DOCTYPE;
+      const docType = DEFAULT_SETTING_DOCTYPE;
       const result = createIndex(client, indexName);
 
       return result

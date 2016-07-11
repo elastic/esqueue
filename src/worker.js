@@ -1,8 +1,8 @@
 import events from 'events';
 import Puid from 'puid';
 import moment from 'moment';
+import constants from './constants';
 import logger from './helpers/logger';
-import constants from './helpers/constants';
 import { WorkerTimeoutError, UnspecifiedWorkerError } from './helpers/errors';
 
 const puid = new Puid();

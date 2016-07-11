@@ -1,6 +1,6 @@
 import { uniqueId, times, random } from 'lodash';
 import elasticsearch from 'elasticsearch';
-import constants from '../../lib/helpers/constants';
+import constants from '../../lib/constants';
 
 function Client() {
   this.indices = {

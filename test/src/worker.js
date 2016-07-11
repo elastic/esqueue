@@ -5,7 +5,7 @@ import { noop, random, get, find } from 'lodash';
 import elasticsearchMock from '../fixtures/elasticsearch';
 import QueueMock from '../fixtures/queue';
 import Worker from '../../lib/worker';
-import constants from '../../lib/helpers/constants';
+import constants from '../../lib/constants';
 
 const anchor = '2016-04-02T01:02:03.456'; // saturday
 const defaults = {

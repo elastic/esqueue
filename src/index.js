@@ -1,11 +1,11 @@
 import events from 'events';
+import omit from 'lodash.omit';
+import Job from './job.js';
+import Worker from './worker.js';
+import constants from './constants';
 import createClient from './helpers/es_client';
 import indexTimestamp from './helpers/index_timestamp';
 import logger from './helpers/logger';
-import constants from './helpers/constants';
-import Job from './job.js';
-import Worker from './worker.js';
-import omit from 'lodash.omit';
 
 const debug = logger('esqueue:queue');
 
