@@ -5,7 +5,7 @@ import proxyquire from 'proxyquire';
 import elasticsearchMock from '../fixtures/elasticsearch';
 import contstants from '../../lib/constants';
 
-const createIndexMock = sinon.stub().returns(Promise.resolve('mock'));
+const createIndexMock = sinon.stub();
 const module = proxyquire.noPreserveCache()('../../lib/job', {
   './helpers/create_index': createIndexMock
 });
@@ -32,6 +32,7 @@ describe('Job Class', function () {
 
   beforeEach(function () {
     createIndexMock.reset();
+    createIndexMock.returns(Promise.resolve('mock'));
     index = 'test';
     client = new elasticsearchMock.Client();
   });
@@ -106,6 +107,53 @@ describe('Job Class', function () {
       });
     });
 
+    it('should emit the job information on success', function (done) {
+      const job = new Job(client, index, type, payload);
+      job.once(contstants.EVENT_JOB_CREATED, (jobDoc) => {
+        try {
+          expect(jobDoc).to.have.property('id');
+          expect(jobDoc).to.have.property('index');
+          expect(jobDoc).to.have.property('type');
+          expect(jobDoc).to.have.property('version');
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should emit error on index creation failure', function (done) {
+      const errMsg = 'test index creation failure';
+
+      createIndexMock.returns(Promise.reject(new Error(errMsg)));
+      const job = new Job(client, index, type, payload);
+
+      job.once(contstants.EVENT_JOB_ERROR, (err) => {
+        try {
+          expect(err.message).to.equal(errMsg);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
+
+    it('should emit error on client index failure', function (done) {
+      const errMsg = 'test document index failure';
+
+      client.index.restore();
+      sinon.stub(client, 'index', () => Promise.reject(new Error(errMsg)));
+      const job = new Job(client, index, type, payload);
+
+      job.once(contstants.EVENT_JOB_ERROR, (err) => {
+        try {
+          expect(err.message).to.equal(errMsg);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+    });
   });
 
   describe('default values', function () {
