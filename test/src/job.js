@@ -161,6 +161,33 @@ describe('Job Class', function () {
     });
   });
 
+  describe('event emitting', function () {
+    it('should trigger events on the queue instance', function (done) {
+      const eventName = 'test event';
+      const payload1 = {
+        test: true,
+        deep: { object: 'ok' }
+      };
+      const payload2 = 'two';
+      const payload3 = new Error('test error');
+
+      const job = new Job(mockQueue, index, type, payload, options);
+
+      mockQueue.on(eventName, (...args) => {
+        try {
+          expect(args[0]).to.equal(payload1);
+          expect(args[1]).to.equal(payload2);
+          expect(args[2]).to.equal(payload3);
+          done();
+        } catch (e) {
+          done(e);
+        }
+      });
+
+      job.emit(eventName, payload1, payload2, payload3);
+    });
+  });
+
   describe('default values', function () {
     beforeEach(function () {
       type = 'type1';
@@ -209,7 +236,6 @@ describe('Job Class', function () {
         expect(indexArgs.body).to.have.property('priority', defaultPriority);
       });
     });
-
   });
 
   describe('option passing', function () {
