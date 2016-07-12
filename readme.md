@@ -139,6 +139,30 @@ var asyncWorker = function (payload) {
 
 All of the above are valid. `workerFn2` and `asyncWorker` are likely to be more useful when retrieving the output, as the application doesn't need to know or make assumptions about the type of content the worker returned. Note that returning a Promise is all that's required for an async result in the worker functions.
 
+## Queue events
+
+`esqueue` components, namely the Queue, Job, and Worker instances, are also event emitters. Each instance will emit events to help your application know when certain things happen in the queue, like when a job is created, or a worker is done running, or when it times out.
+
+It's important to note that all events emitted from the Job and Worker instances are also emitted on the Queue instance. This means that your application should be able to react to changes by only keeping track of that instance.
+
+Available events can be found in `lib/constants/events.js`, and you're encouraged to import and use those constant values in your application. Here's an example:
+
+```js
+var Queue = require('esqueue');
+var queueEvents = require('esqueue/lib/constants/events');
+
+var jobQueue = new Queue('my-index');
+
+jobQueue.on(queueEvents.EVENT_JOB_CREATE_ERROR, (err) => {
+  // handle error
+  console.log('ONOZ!!! Job creation failed :(', err.error.message);
+});
+```
+
+The argument passed to listeners typically contains several pieces of information about what happened. For example, Worker events will contain information about the job, the worker, and if it's an error event, the error.
+
+More than any other events, you'll probably want to know if a worker completed or failed. When a worker starts, it will always either emit `EVENT_WORKER_COMPLETE` or `EVENT_WORKER_JOB_FAIL`. Faliures may also emit other events, such as `EVENT_WORKER_JOB_TIMEOUT` or `EVENT_WORKER_JOB_EXECUTION_ERROR`, but you can rely on `EVENT_WORKER_JOB_FAIL` for all failure cases.
+
 ## Scaling the queue
 
 Scaling the queue, both in terms of creating jobs and spinning up workers, is as simple as creating a new queue on another machine and pointing it at the same index.
