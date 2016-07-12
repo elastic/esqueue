@@ -710,65 +710,68 @@ describe('Worker class', function () {
     });
   });
 
-  describe('job timing', function () {
+  describe('job failures', function () {
     function getFailStub(worker) {
       return sinon.stub(worker, '_failJob').returns(Promise.resolve());
     }
 
-    it('should timeout if not complete within allotted time', function (done) {
-      const timeout = 20;
-      const workerFn = function () {
-        return new Promise(function (resolve) {
-          setTimeout(() => {
-            resolve();
-          }, timeout * 2);
-        });
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
-      const failStub = getFailStub(worker);
+    describe('timeout', function () {
+      let worker;
+      let failStub;
+      let job;
 
-      const job = {
-        _id: 'testTimeoutJob',
-        _source: {
-          timeout: timeout,
-          payload: 'test'
-        }
-      };
+      beforeEach(function () {
+        const timeout = 20;
+        const workerFn = function () {
+          return new Promise(function (resolve) {
+            setTimeout(() => {
+              resolve();
+            }, timeout * 2);
+          });
+        };
+        worker = new Worker(mockQueue, 'test', workerFn);
+        failStub = getFailStub(worker);
 
-      let performJobPromise;
-
-      // check for timeout event
-      worker.once(constants.EVENT_WORKER_JOB_TIMEOUT, (err) => {
-        try {
-          expect(err).to.have.property('error');
-          expect(err).to.have.property('job');
-          expect(err).to.have.property('worker');
-          expect(err.error).to.have.property('type', 'WorkerTimeoutError');
-          performJobPromise.then(() => {
-            sinon.assert.notCalled(failStub);
-            done();
-          }).catch(done);
-        } catch (e) {
-          done(e);
-        }
+        job = {
+          _id: 'testTimeoutJob',
+          _source: {
+            timeout: timeout,
+            payload: 'test'
+          }
+        };
       });
 
-      // fire of the job worker
-      performJobPromise = worker._performJob(job);
+      it('should not fail job', function () {
+        // fire of the job worker
+        return worker._performJob(job)
+        .then(() => {
+          sinon.assert.notCalled(failStub);
+        });
+      });
+
+      it('should emit timeout if not completed in time', function (done) {
+        worker.once(constants.EVENT_WORKER_JOB_TIMEOUT, (err) => {
+          try {
+            expect(err).to.have.property('error');
+            expect(err).to.have.property('job');
+            expect(err).to.have.property('worker');
+            expect(err.error).to.have.property('type', 'WorkerTimeoutError');
+            done();
+          } catch (e) {
+            done(e);
+          }
+        });
+
+        // fire of the job worker
+        worker._performJob(job);
+      });
     });
 
-    it('should fail if worker fails', function () {
-      const timeout = 20;
-      const workerFn = function () {
-        return new Promise(function (resolve, reject) {
-          setTimeout(() => {
-            reject();
-          }, timeout / 2);
-        });
-      };
-      const worker = new Worker(mockQueue, 'test', workerFn);
-      const failStub = getFailStub(worker);
+    describe('worker failure', function () {
+      let worker;
+      let failStub;
 
+      const timeout = 20;
       const job = {
         _id: 'testTimeoutJob',
         _source: {
@@ -777,11 +780,75 @@ describe('Worker class', function () {
         }
       };
 
-      return worker._performJob(job)
-      .then(() => {
-        sinon.assert.calledOnce(failStub);
+      describe('reject', function () {
+        beforeEach(function () {
+          const workerFn = function () {
+            return new Promise(function (resolve, reject) {
+              setTimeout(() => {
+                reject();
+              }, timeout / 2);
+            });
+          };
+          worker = new Worker(mockQueue, 'test', workerFn);
+          failStub = getFailStub(worker);
+        });
+
+        it('should fail the job', function () {
+          return worker._performJob(job)
+          .then(() => {
+            sinon.assert.calledOnce(failStub);
+          });
+        });
+
+        it('should emit worker execution error', function (done) {
+          worker.on(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
+            try {
+              expect(err).to.have.property('error');
+              expect(err).to.have.property('job');
+              expect(err).to.have.property('worker');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+
+          // fire of the job worker
+          worker._performJob(job);
+        });
+      });
+
+      describe('throw', function () {
+        beforeEach(function () {
+          const workerFn = function () {
+            throw new Error('test throw');
+          };
+          worker = new Worker(mockQueue, 'test', workerFn);
+          failStub = getFailStub(worker);
+        });
+
+        it('should fail the job', function () {
+          return worker._performJob(job)
+          .then(() => {
+            sinon.assert.calledOnce(failStub);
+          });
+        });
+
+        it('should emit worker execution error', function (done) {
+          worker.on(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
+            try {
+              expect(err).to.have.property('error');
+              expect(err).to.have.property('job');
+              expect(err).to.have.property('worker');
+              done();
+            } catch (e) {
+              done(e);
+            }
+          });
+
+          // fire of the job worker
+          worker._performJob(job);
+        });
       });
     });
   });
-
 });
