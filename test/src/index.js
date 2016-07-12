@@ -98,8 +98,13 @@ describe('Esqueue class', function () {
   });
 
   describe('Registering workers', function () {
+    let queue;
+
+    beforeEach(function () {
+      queue = new Esqueue('esqueue', { client });
+    });
+
     it('should keep track of workers', function () {
-      const queue = new Esqueue('esqueue', { client });
       expect(queue.getWorkers()).to.eql([]);
       expect(queue.getWorkers()).to.have.length(0);
 
@@ -107,6 +112,27 @@ describe('Esqueue class', function () {
       queue.registerWorker('test', noop);
       queue.registerWorker('test2', noop);
       expect(queue.getWorkers()).to.have.length(3);
+    });
+
+    it('should pass instance of queue, type, and worker function', function () {
+      const workerType = 'test-worker';
+      const workerFn = () => true;
+
+      const worker = queue.registerWorker(workerType, workerFn);
+      expect(worker.getProp('queue')).to.equal(queue);
+      expect(worker.getProp('type')).to.equal(workerType);
+      expect(worker.getProp('workerFn')).to.equal(workerFn);
+    });
+
+    it('should pass worker options', function () {
+      const workerOptions = {
+        size: 12,
+        doctype: 'tests'
+      };
+
+      queue = new Esqueue('esqueue', { client });
+      const worker = queue.registerWorker('type', noop, workerOptions);
+      expect(worker.getProp('options')).to.equal(workerOptions);
     });
   });
 
