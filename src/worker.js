@@ -117,6 +117,12 @@ export default class Job extends events.EventEmitter {
       output: docOutput
     };
 
+    this.emit(constants.EVENT_WORKER_JOB_FAIL, {
+      job: formatJobObject(job),
+      worker: this.toJSON(),
+      output: docOutput,
+    });
+
     return this.client.update({
       index: job._index,
       type: job._type,
@@ -124,16 +130,7 @@ export default class Job extends events.EventEmitter {
       version: job._version,
       body: { doc }
     })
-    .then(() => {
-      const eventOutput = {
-        job: formatJobObject(job),
-        worker: this.toJSON(),
-        output: docOutput,
-      };
-
-      this.emit(constants.EVENT_WORKER_JOB_FAIL, eventOutput);
-      return true;
-    })
+    .then(() => true)
     .catch((err) => {
       if (err.statusCode === 409) return true;
       this.debug(`_failJob failed to update job ${job._id}`, err);
