@@ -112,6 +112,17 @@ describe('Job Class', function () {
       });
     });
 
+    it('should refresh the index', function () {
+      const refreshSpy = sinon.spy(client.indices, 'refresh');
+
+      const job = new Job(mockQueue, index, type, payload);
+      return job.ready.then(() => {
+        sinon.assert.calledOnce(refreshSpy);
+        const spyCall = refreshSpy.getCall(0);
+        expect(spyCall.args[0]).to.have.property('index', index);
+      });
+    });
+
     it('should emit the job information on success', function (done) {
       const job = new Job(mockQueue, index, type, payload);
       job.once(contstants.EVENT_JOB_CREATED, (jobDoc) => {
