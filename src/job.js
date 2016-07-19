@@ -58,7 +58,13 @@ export default class Job extends events.EventEmitter {
         version: doc._version,
       };
       this.debug(`Job created in index ${this.index}`);
-      this.emit(contstants.EVENT_JOB_CREATED, this.document);
+
+      return this.client.indices.refresh({
+        index: this.index
+      }).then(() => {
+        this.debug(`Job index refreshed ${this.index}`);
+        this.emit(contstants.EVENT_JOB_CREATED, this.document);
+      });
     })
     .catch((err) => {
       this.debug('Job creation failed', err);
