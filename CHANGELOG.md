@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.10.1
+
+- Refresh Elasticsearch index when creating job, fire event after refresh
+
 ## v0.10.0
 
 - [BREAKING] Remove header passing on job creation
