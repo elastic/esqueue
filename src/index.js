@@ -3,7 +3,7 @@ import omit from 'lodash.omit';
 import Job from './job.js';
 import Worker from './worker.js';
 import constants from './constants';
-import createClient from './helpers/es_client';
+import createClient from './helpers/create_client';
 import indexTimestamp from './helpers/index_timestamp';
 import logger from './helpers/logger';
 
