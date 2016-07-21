@@ -48,6 +48,10 @@ export default class Job extends events.EventEmitter {
       }
     };
 
+    if (options.headers) {
+      indexParams.headers = options.headers;
+    }
+
     this.ready = createIndex(this.client, this.index, this.doctype, this.indexSettings)
     .then(() => this.client.index(indexParams))
     .then((doc) => {
