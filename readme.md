@@ -62,6 +62,7 @@ timeout | `10000` | Timeout for the job, if different than the timeout configure
 max_attempts | `3` | Number of times to re-trying assigning the job to a worker before giving up and failing.
 priority | `0` | Used to move jobs up the queue. Uses nice values from `-20` to `20`.
 created_by | null | Used to filter job documents by a creator identifier; meant to be consumed by external applications.
+headers | | Any headers to add to the index request. Handy for custom authentication or use with a proxy.
 client | | Alternative elasticsearch client instance, if you need to use one other than what the queue was created with.
 
 ### Creating a worker
