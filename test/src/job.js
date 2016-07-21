@@ -256,6 +256,9 @@ describe('Job Class', function () {
       options = {
         timeout: 4567,
         max_attempts: 9,
+        headers: {
+          authorization: 'Basic cXdlcnR5'
+        }
       };
       sinon.spy(client, 'index');
     });
@@ -282,6 +285,14 @@ describe('Job Class', function () {
       return job.ready.then(() => {
         const indexArgs = validateDoc(client.index);
         expect(indexArgs.body).to.have.property('max_attempts', options.max_attempts);
+      });
+    });
+
+    it('should add headers to the request params', function () {
+      const job = new Job(mockQueue, index, type, payload, options);
+      return job.ready.then(() => {
+        const indexArgs = validateDoc(client.index);
+        expect(indexArgs).to.have.property('headers', options.headers);
       });
     });
 

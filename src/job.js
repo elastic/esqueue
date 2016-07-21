@@ -113,5 +113,4 @@ export default class Job extends events.EventEmitter {
       priority: this.priority,
     });
   }
-
 }

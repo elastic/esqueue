@@ -95,6 +95,16 @@ describe('Esqueue class', function () {
       const job = queue.addJob(jobType, payload);
       expect(job.getProp('options')).to.have.property('indexSettings', indexSettings);
     });
+
+    it('should pass headers from options', function () {
+      const options = {
+        headers: {
+          authorization: 'Basic cXdlcnR5'
+        }
+      };
+      const job = queue.addJob(jobType, payload, options);
+      expect(job.getProp('options')).to.have.property('headers', options.headers);
+    });
   });
 
   describe('Registering workers', function () {
