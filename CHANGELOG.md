@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.10.3
+
+- Bump moment.js version, fix [DoS issue](https://nodesecurity.io/advisories/55)
+
 ## v0.10.2
 
 - Allow passing headers on job creation, useful for auth and proxy traversal
