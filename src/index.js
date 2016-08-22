@@ -19,6 +19,7 @@ export default class Esqueue extends events.EventEmitter {
       interval: constants.DEFAULT_SETTING_INTERVAL,
       timeout: constants.DEFAULT_SETTING_TIMEOUT,
       doctype: constants.DEFAULT_SETTING_DOCTYPE,
+      dateSeparator: constants.DEFAULT_SETTING_DATE_SEPARATOR,
     }, omit(options, [ 'client' ]));
     this.client = createClient(options.client || {});
 
@@ -38,7 +39,7 @@ export default class Esqueue extends events.EventEmitter {
   }
 
   addJob(type, payload, opts = {}) {
-    const timestamp = indexTimestamp(this.settings.interval);
+    const timestamp = indexTimestamp(this.settings.interval, this.settings.dateSeparator);
     const index = `${this.index}-${timestamp}`;
     const defaults = {
       timeout: this.settings.timeout,
