@@ -8,7 +8,7 @@
     "package": "git checkout -B package-lib && npm run build && git add -f lib && git commit -m 'package lib' && echo Use npm to tag and publish",
     "coverage": "nyc report --reporter=text-lcov > coverage.lcov && codecov",
     "prepublish": "in-publish && npm run test || not-in-publish",
-    "test": "npm run build && npm run unit",
+    "test": "retire -n -p package.json && npm run build && npm run unit",
     "unit": "nyc --require babel-core/register mocha test/src/**"
   },
   "author": "Joe Fleming (https://github.com/w33ble)",
@@ -42,6 +42,7 @@
     "mocha": "~2.4.5",
     "nyc": "~6.4.4",
     "proxyquire": "~1.7.4",
+    "retire": "~1.1.5",
     "sinon": "~1.17.3"
   },
   "dependencies": {
