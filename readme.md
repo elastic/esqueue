@@ -32,6 +32,7 @@ The queue instance is an event emitter, so you can listen for `error` events as 
 Option | Default | Description
 ------ | ----------- | -------
 interval | `week` | Valid choices are `year`, `month`, `week`, `day`, `hour`, and even `minute`. | `week`
+dateSeparator | `-` | Separator for the formatted date, *YYYY-MM-DD* for example, in the index pattern.
 timeout | `10000` | The default job timeout, in `ms`. If workers take longer than this, the job is re-queued for another worker to complete it.
 doctype | `esqueue` | The doctype to use in Elasticsearch
 indexSettings | | Specify which `settings` to pass on index creation. See the [Elasticsearch index creation docs](https://www.elastic.co/guide/en/elasticsearch/reference/2.3/indices-create-index.html) for more info.
