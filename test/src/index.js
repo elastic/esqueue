@@ -69,6 +69,12 @@ describe('Esqueue class', function () {
       queue = new Esqueue(indexName, { client });
     });
 
+    it('should throw with invalid dateSeparator setting', function () {
+      queue = new Esqueue(indexName, { client, dateSeparator: 'a' });
+      const fn = () => queue.addJob(jobType, payload);
+      expect(fn).to.throwException();
+    });
+
     it('should pass queue instance, index name, type and payload', function () {
       const job = queue.addJob(jobType, payload);
       expect(job.getProp('queue')).to.equal(queue);
