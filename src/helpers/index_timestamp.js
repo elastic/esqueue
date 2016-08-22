@@ -9,7 +9,9 @@ export const intervals = [
   'minute'
 ];
 
-export default function indexTimestamp(intervalStr) {
+export default function indexTimestamp(intervalStr, separator = '-') {
+  if (separator.match(/[a-z]/i)) throw new Error('Interval separator can not be a letter');
+
   const index = intervals.indexOf(intervalStr);
   if (index === -1) throw new Error('Invalid index interval: ', intervalStr);
 
@@ -22,16 +24,16 @@ export default function indexTimestamp(intervalStr) {
       dateString = 'YYYY';
       break;
     case 'month':
-      dateString = 'YYYY-MM';
+      dateString = `YYYY${separator}MM`;
       break;
     case 'hour':
-      dateString = 'YYYY-MM-DD-HH';
+      dateString = `YYYY${separator}MM${separator}DD${separator}HH`;
       break;
     case 'minute':
-      dateString = 'YYYY-MM-DD-HH-mm';
+      dateString = `YYYY${separator}MM${separator}DD${separator}HH${separator}mm`;
       break;
     default:
-      dateString = 'YYYY-MM-DD';
+      dateString = `YYYY${separator}MM${separator}DD`;
   }
 
   return m.format(dateString);
