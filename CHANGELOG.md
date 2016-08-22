@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.10.4
+
+- Allow index pattern date separator to be customized
+
 ## v0.10.3
 
 - Bump moment.js version, fix [DoS issue](https://nodesecurity.io/advisories/55)
