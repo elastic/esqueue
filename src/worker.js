@@ -287,7 +287,7 @@ export default class Job extends events.EventEmitter {
     const nowTime = moment().toISOString();
     const query = {
       _source : {
-        exclude: [ 'output.content' ]
+        excludes: [ 'output.content' ]
       },
       query: {
         constant_score: {

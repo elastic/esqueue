@@ -278,7 +278,7 @@ describe('Worker class', function () {
         const excludedFields = [ 'output.content' ];
         const { body } = getSearchParams(jobtype);
         expect(body).to.have.property('_source');
-        expect(body._source).to.eql({ exclude: excludedFields });
+        expect(body._source).to.eql({ excludes: excludedFields });
       });
 
       it('should search by job type', function () {
