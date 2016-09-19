@@ -1,5 +1,9 @@
 # Changelog
 
+## v0.10.5
+
+- Apache 2.0 license file
+
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
 ## v0.10.4
