@@ -10,6 +10,10 @@ Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes wh
 
 - Contrary to the [source filtering docs](https://www.elastic.co/guide/en/elasticsearch/reference/2.4/search-request-source-filtering.html), use plural form of include/exclude due to breaking change in Elasticsearch 5.0
 
+## v0.10.5
+
+- Apache 2.0 license file
+
 ## v0.10.4
 
 - Allow index pattern date separator to be customized
