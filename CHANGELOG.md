@@ -2,6 +2,11 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.12.0
+
+- [BREAKING] Rename general queue error to `queue:error` instead of simply `error`
+- Remove the `timeout` parameter from the ping operation on intiialization
+
 ## v0.11.1
 
 - Apache 2.0 license file
