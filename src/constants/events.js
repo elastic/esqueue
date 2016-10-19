@@ -1,5 +1,5 @@
 export default {
-  EVENT_QUEUE_ERROR: 'error',
+  EVENT_QUEUE_ERROR: 'queue:error',
   EVENT_JOB_ERROR: 'job:error',
   EVENT_JOB_CREATED: 'job:created',
   EVENT_JOB_CREATE_ERROR: 'job:creation error',
