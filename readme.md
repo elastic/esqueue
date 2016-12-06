@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/w33ble/esqueue.svg?branch=master)](https://travis-ci.org/w33ble/esqueue) [![codecov](https://codecov.io/gh/w33ble/esqueue/branch/master/graph/badge.svg)](https://codecov.io/gh/w33ble/esqueue)
+[![Build Status](https://travis-ci.org/elastic/esqueue.svg?branch=master)](https://travis-ci.org/elastic/esqueue)
 
 # esqueue
 
