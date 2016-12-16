@@ -42,7 +42,7 @@ export default class Job extends events.EventEmitter {
 
   destroy() {
     this._running = false;
-    clearInterval(this._checker);
+    this._stopJobPolling();
   }
 
   toJSON() {
