@@ -31,6 +31,7 @@ export default class Worker extends events.EventEmitter {
     this.checkInterval = opts.interval || 1500;
     this.checkSize = opts.size || 10;
     this.doctype = opts.doctype || constants.DEFAULT_SETTING_DOCTYPE;
+    this.running = true;
 
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
@@ -40,6 +41,7 @@ export default class Worker extends events.EventEmitter {
   }
 
   destroy() {
+    this.running = false;
     clearInterval(this._checker);
   }
 
@@ -237,6 +239,9 @@ export default class Worker extends events.EventEmitter {
   }
 
   _startJobPolling() {
+    if (!this.running) {
+      return;
+    }
     this._checker = setInterval(() => {
       this._getPendingJobs()
       .then((jobs) => this._claimPendingJobs(jobs));
