@@ -35,12 +35,14 @@ export default class Worker extends events.EventEmitter {
     this.debug = (...msg) => debug(...msg, `id: ${this.id}`);
 
     this._checker = false;
+    this._running = true;
     this.debug(`Created worker for job type ${this.jobtype}`);
     this._startJobPolling();
   }
 
   destroy() {
-    clearInterval(this._checker);
+    this._running = false;
+    this._stopJobPolling();
   }
 
   toJSON() {
@@ -237,6 +239,10 @@ export default class Worker extends events.EventEmitter {
   }
 
   _startJobPolling() {
+    if (!this._running) {
+      return;
+    }
+
     this._checker = setInterval(() => {
       this._getPendingJobs()
       .then((jobs) => this._claimPendingJobs(jobs));
