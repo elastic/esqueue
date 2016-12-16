@@ -185,6 +185,27 @@ describe('Worker class', function () {
       clock.tick(interval);
       sinon.assert.calledOnce(searchSpy);
     });
+
+    it('should not poll once destroyed', function () {
+      const worker = new Worker(mockQueue, 'test', noop);
+
+      // move the clock a couple times, test for searches each time
+      sinon.assert.notCalled(searchSpy);
+      clock.tick(defaults.interval);
+      sinon.assert.calledOnce(searchSpy);
+      clock.tick(defaults.interval);
+      sinon.assert.calledTwice(searchSpy);
+
+      // destroy the worker, move the clock, make sure another search doesn't happen
+      worker.destroy();
+      clock.tick(defaults.interval);
+      sinon.assert.calledTwice(searchSpy);
+
+      // manually call job poller, move the clock, make sure another search doesn't happen
+      worker._startJobPolling();
+      clock.tick(defaults.interval);
+      sinon.assert.calledTwice(searchSpy);
+    });
   });
 
   describe('query for pending jobs', function () {
