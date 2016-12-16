@@ -16,7 +16,7 @@ function formatJobObject(job) {
   };
 }
 
-export default class Job extends events.EventEmitter {
+export default class Worker extends events.EventEmitter {
   constructor(queue, type, workerFn, opts = {}) {
     if (typeof type !== 'string') throw new Error('Type must be a string');
     if (typeof workerFn !== 'function') throw new Error('Worker must be a function');
