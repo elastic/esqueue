@@ -2,6 +2,14 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.12.2
+
+- Fixed issue where destoyed workers could continue running
+
+## v0.12.1
+
+- Move repo to elastic org
+
 ## v0.12.0
 
 - [BREAKING] Rename general queue error to `queue:error` instead of simply `error`
