@@ -719,7 +719,7 @@ describe('Worker class', function () {
             expect(err).to.have.property('error');
             expect(err).to.have.property('job');
             expect(err).to.have.property('worker');
-            expect(err.error).to.have.property('type', 'UnspecifiedWorkerError');
+            expect(err.error).to.have.property('name', 'UnspecifiedWorkerError');
             done();
           } catch (e) {
             done(e);
@@ -776,7 +776,7 @@ describe('Worker class', function () {
             expect(err).to.have.property('error');
             expect(err).to.have.property('job');
             expect(err).to.have.property('worker');
-            expect(err.error).to.have.property('type', 'WorkerTimeoutError');
+            expect(err.error).to.have.property('name', 'WorkerTimeoutError');
             done();
           } catch (e) {
             done(e);

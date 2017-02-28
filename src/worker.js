@@ -178,7 +178,7 @@ export default class Worker extends events.EventEmitter {
         if (isResolved) return;
 
         this.debug(`Timeout processing job ${job._id}`);
-        reject(new WorkerTimeoutError({
+        reject(new WorkerTimeoutError(`Worker timed out, timeout = ${job._source.timeout}`, {
           timeout: job._source.timeout,
           jobId: job._id,
         }));
@@ -220,16 +220,24 @@ export default class Worker extends events.EventEmitter {
       });
     }, (jobErr) => {
       if (!jobErr) {
-        jobErr = new UnspecifiedWorkerError({
+        jobErr = new UnspecifiedWorkerError('Unspecified worker error', {
           jobId: job._id,
         });
       }
 
       // job execution failed
-      if (jobErr.type === 'WorkerTimeoutError') {
+      if (jobErr.name === 'WorkerTimeoutError') {
         this.debug(`Timeout on job ${job._id}`);
         this.emit(constants.EVENT_WORKER_JOB_TIMEOUT, this._formatErrorParams(jobErr, job));
         return;
+
+      // append the jobId to the error
+      } else {
+        try {
+          Object.assign(jobErr, { jobId: job._id });
+        } catch (e) {
+          // do nothing if jobId can not be appended
+        }
       }
 
       this.debug(`Failure occurred on job ${job._id}`, jobErr);
