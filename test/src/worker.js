@@ -440,8 +440,10 @@ describe('Worker class', function () {
     it('should emit on other errors', function (done) {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
+      const errType = constants.EVENT_WORKER_JOB_CLAIM_ERROR;
 
-      worker.on(constants.EVENT_WORKER_JOB_CLAIM_ERROR, function (err) {
+      expect(errType).to.not.be(undefined);
+      worker.on(errType, function (err) {
         try {
           expect(err).to.have.property('error');
           expect(err).to.have.property('job');
@@ -529,7 +531,10 @@ describe('Worker class', function () {
     });
 
     it('should emit worker failure event', function (done) {
-      worker.on(constants.EVENT_WORKER_JOB_FAIL, (err) => {
+      const errType = constants.EVENT_WORKER_JOB_FAIL;
+
+      expect(errType).to.not.be(undefined);
+      worker.on(errType, (err) => {
         try {
           expect(err).to.have.property('output');
           expect(err).to.have.property('job');
@@ -547,7 +552,10 @@ describe('Worker class', function () {
       mockQueue.client.update.restore();
       sinon.stub(mockQueue.client, 'update').returns(Promise.reject({ statusCode: 401 }));
 
-      worker.on(constants.EVENT_WORKER_FAIL_UPDATE_ERROR, function (err) {
+      const errType = constants.EVENT_WORKER_JOB_FAIL_ERROR;
+
+      expect(errType).to.not.be(undefined);
+      worker.on(errType, function (err) {
         try {
           expect(err).to.have.property('error');
           expect(err).to.have.property('job');
@@ -634,8 +642,10 @@ describe('Worker class', function () {
 
       it('should emit completion event', function (done) {
         const worker = new Worker(mockQueue, 'test', noop);
+        const errType = constants.EVENT_WORKER_COMPLETE;
 
-        worker.once(constants.EVENT_WORKER_COMPLETE, (workerJob) => {
+        expect(errType).to.not.be(undefined);
+        worker.once(errType, (workerJob) => {
           try {
             expect(workerJob).to.not.have.property('_source');
 
@@ -713,8 +723,10 @@ describe('Worker class', function () {
           });
         };
         const worker = new Worker(mockQueue, 'test', workerFn);
+        const errType = constants.EVENT_WORKER_JOB_EXECUTION_ERROR;
 
-        worker.once(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
+        expect(errType).to.not.be(undefined);
+        worker.once(errType, (err) => {
           try {
             expect(err).to.have.property('error');
             expect(err).to.have.property('job');
@@ -771,6 +783,8 @@ describe('Worker class', function () {
       });
 
       it('should emit timeout if not completed in time', function (done) {
+        expect(constants.EVENT_WORKER_JOB_TIMEOUT).to.not.be(undefined);
+
         worker.once(constants.EVENT_WORKER_JOB_TIMEOUT, (err) => {
           try {
             expect(err).to.have.property('error');
@@ -822,7 +836,10 @@ describe('Worker class', function () {
         });
 
         it('should emit worker execution error', function (done) {
-          worker.on(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
+          const errType = constants.EVENT_WORKER_JOB_EXECUTION_ERROR;
+
+          expect(errType).to.not.be(undefined);
+          worker.on(errType, (err) => {
             try {
               expect(err).to.have.property('error');
               expect(err).to.have.property('job');
@@ -855,7 +872,10 @@ describe('Worker class', function () {
         });
 
         it('should emit worker execution error', function (done) {
-          worker.on(constants.EVENT_WORKER_JOB_EXECUTION_ERROR, (err) => {
+          const errType = constants.EVENT_WORKER_JOB_EXECUTION_ERROR;
+
+          expect(errType).to.not.be(undefined);
+          worker.on(errType, (err) => {
             try {
               expect(err).to.have.property('error');
               expect(err).to.have.property('job');
