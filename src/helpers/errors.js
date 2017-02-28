@@ -1,19 +1,20 @@
-import typedError from 'error/typed';
+export function WorkerTimeoutError(message, props = {}) {
+  this.name = 'WorkerTimeoutError';
+  this.message = message;
+  this.timeout = props.timeout;
+  this.jobId = props.jobId;
 
-const errors = {};
+  if ("captureStackTrace" in Error) Error.captureStackTrace(this, WorkerTimeoutError);
+  else this.stack = (new Error()).stack;
+}
+WorkerTimeoutError.prototype = Object.create(Error.prototype);
 
-errors.WorkerTimeoutError = typedError({
-  type: 'WorkerTimeoutError',
-  message: 'worker timed out, timeout={timeout}',
-  timeout: null,
-  jobId: null
-});
+export function UnspecifiedWorkerError(message, props = {}) {
+  this.name = 'UnspecifiedWorkerError';
+  this.message = message;
+  this.jobId = props.jobId;
 
-errors.UnspecifiedWorkerError = typedError({
-  type: 'UnspecifiedWorkerError',
-  message: 'Unspecified worker error',
-  timeout: null,
-  jobId: null
-});
-
-export default errors;
+  if ("captureStackTrace" in Error) Error.captureStackTrace(this, UnspecifiedWorkerError);
+  else this.stack = (new Error()).stack;
+}
+UnspecifiedWorkerError.prototype = Object.create(Error.prototype);
