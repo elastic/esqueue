@@ -2,6 +2,12 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v1.0.0
+
+- [BREAKING] elasticsearch package is a peerDependency now, since it's not required if you are using the `client` option when instantiating the queue
+- Remove lodash.isPlainObject and lodash.omit dependencies, use customer helpers
+- Remove errors dependency, use custom errors
+
 ## v0.12.2
 
 - Fixed issue where destoyed workers could continue running
