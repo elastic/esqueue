@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading.
 
+## v0.12.3
+
+- Fixed bug where failed document updates on job failures didn't emit the correct event
+
 ## v0.12.2
 
 - Fixed issue where destoyed workers could continue running
