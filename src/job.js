@@ -1,9 +1,9 @@
 import events from 'events';
-import isPlainObject from 'lodash.isplainobject';
 import Puid from 'puid';
 import contstants from './constants';
 import logger from './helpers/logger';
 import createIndex from './helpers/create_index';
+import isPlainObject from './helpers/is_plain_object';
 
 const debug = logger('esqueue:job');
 const puid = new Puid();

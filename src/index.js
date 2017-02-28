@@ -1,10 +1,10 @@
 import events from 'events';
-import omit from 'lodash.omit';
 import Job from './job.js';
 import Worker from './worker.js';
 import constants from './constants';
 import createClient from './helpers/create_client';
 import indexTimestamp from './helpers/index_timestamp';
+import objectOmit from './helpers/object_omit';
 import logger from './helpers/logger';
 
 const debug = logger('esqueue:queue');
@@ -20,7 +20,7 @@ export default class Esqueue extends events.EventEmitter {
       timeout: constants.DEFAULT_SETTING_TIMEOUT,
       doctype: constants.DEFAULT_SETTING_DOCTYPE,
       dateSeparator: constants.DEFAULT_SETTING_DATE_SEPARATOR,
-    }, omit(options, [ 'client' ]));
+    }, objectOmit(options, [ 'client' ]));
     this.client = createClient(options.client || {});
 
     this._workers = [];
