@@ -136,7 +136,7 @@ export default class Worker extends events.EventEmitter {
     .catch((err) => {
       if (err.statusCode === 409) return true;
       this.debug(`_failJob failed to update job ${job._id}`, err);
-      this.emit(constants.EVENT_WORKER_FAIL_UPDATE_ERROR, this._formatErrorParams(err, job));
+      this.emit(constants.EVENT_WORKER_JOB_FAIL_ERROR, this._formatErrorParams(err, job));
       return false;
     });
   }
