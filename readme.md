@@ -8,6 +8,10 @@
 
 `npm install esqueue`
 
+Note that the more recent version of esqueue is meant to work with Elasticsearch 5.x or later. If you need it to work with an older version, use v1.0.0:
+
+`npm install equeue@^1.0.0`
+
 ## Usage
 
 Simply include the module in your application.
