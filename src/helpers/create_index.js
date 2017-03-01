@@ -34,7 +34,6 @@ export default function createIndex(client, indexName, doctype = DEFAULT_SETTING
   .then((exists) => {
     if (!exists) {
       return client.indices.create({
-        ignore: 400,
         index: indexName,
         body: body
       })
