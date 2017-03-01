@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading in pre-1.0 versions. As of 1.0, breaking changes will only happen in major versions.
 
+## v2.0.1
+
+- Don't swallow 400 errors at index creation
+
 ## v2.0.0
 
 - Change `sting` mappings to `keyword`, since [string is deprecated and is being removed from elasticsearch](https://www.elastic.co/guide/en/elasticsearch/reference/current/breaking_50_mapping_changes.html#_literal_string_literal_fields_replaced_by_literal_text_literal_literal_keyword_literal_fields)
