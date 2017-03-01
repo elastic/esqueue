@@ -1,22 +1,22 @@
 import { DEFAULT_SETTING_DOCTYPE } from '../constants';
 
 const schema = {
-  jobtype: { type: 'string', index: 'not_analyzed' },
+  jobtype: { type: 'keyword' },
   payload: { type: 'object', enabled: false },
   priority: { type: 'byte' },
   timeout: { type: 'long' },
   process_expiration: { type: 'date' },
-  created_by: { type: 'string', index: 'not_analyzed' },
+  created_by: { type: 'keyword' },
   created_at: { type: 'date' },
   started_at: { type: 'date' },
   completed_at: { type: 'date' },
   attempts: { type: 'short' },
   max_attempts: { type: 'short' },
-  status: { type: 'string', index: 'not_analyzed' },
+  status: { type: 'keyword' },
   output: {
     type: 'object',
     properties: {
-      content_type: { type: 'string', index: 'not_analyzed' },
+      content_type: { type: 'keyword', index: false },
       content: { type: 'object', enabled: false }
     }
   }
