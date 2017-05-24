@@ -54,10 +54,7 @@ export default class Esqueue extends events.EventEmitter {
   }
 
   registerWorker(type, workerFn, opts) {
-    const options = Object.assign({
-      doctype: this.settings.doctype,
-    }, opts);
-    const worker = new Worker(this, type, workerFn, options);
+    const worker = new Worker(this, type, workerFn, opts);
     this._workers.push(worker);
     return worker;
   }

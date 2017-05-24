@@ -114,6 +114,7 @@ Option | Default | Description
 interval | `1500` | Time, in `ms` to poll for new jobs in the queue.
 size | `10` | Number of records to return when polling for new jobs. Higher values may result in less Elasticsearch requests, but may also take longer to execute. A bit of tuning based on the number of workers you have my be required here.
 client | | Alternative elasticsearch client instance, if you need to use one other than what the queue was created with.
+doctype | `queue.doctype` | The doctype to use when polling for new jobs. You probably don't want to change this.
 
 The worker's `output` can either be the raw output from the job, or on object that specifies the output's content type.
 
