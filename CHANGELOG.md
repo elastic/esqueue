@@ -2,6 +2,10 @@
 
 Notable changes to the esqueue project. Pay attention to `[BREAKING]` changes when upgrading in pre-1.0 versions. As of 1.0, breaking changes will only happen in major versions.
 
+## v2.0.2
+
+- Fix issue where creating a worker would not use the queue's doctype by default
+
 ## v2.0.1
 
 - Don't swallow 400 errors at index creation
