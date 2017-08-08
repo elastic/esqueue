@@ -1,8 +1,13 @@
 [![Build Status](https://travis-ci.org/elastic/esqueue.svg?branch=master)](https://travis-ci.org/elastic/esqueue)
+[![Project Status](https://img.shields.io/badge/status-experimental-orange.svg)](https://github.com/elastic/esqueue#project-status)
 
 # esqueue
 
 `esqueue` is an Elasticsearch-powered job queue
+
+## Project Status
+
+While it's believed to be pretty stable, this library isn't really being used anywhere in any of Elastic's projects. Issues and PRs are welcome, but it isn't actively being developed. As such, it doesn't get a lot of stress testing, and we don't recommend you rely too heavily on it, hence its experimental status.
 
 ## Installation
 
